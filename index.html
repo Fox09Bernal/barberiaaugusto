@@ -5,63 +5,257 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Barbería Augusto</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: white;
-      text-align: center;
-      margin: 0;
-      padding: 30px 20px;
-    }
-    .contenedor {
-      max-width: 500px;
-      margin: 0 auto;
-    }
+    body { font-family: Arial, sans-serif; background-color: #111; color: white; text-align: center; margin: 0; padding: 30px 20px; }
+    .contenedor { max-width: 500px; margin: 0 auto; }
     h1 { color: #ff0000; }
-    img {
-      width: 100%;
-      border-radius: 12px;
-      margin: 20px 0;
-    }
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-    li {
-      background-color: #333;
-      padding: 14px;
-      margin: 10px 0;
-      border-radius: 8px;
-    }
-    .boton {
-      display: inline-block;
-      background-color: #25d366;
-      color: white;
-      padding: 14px 28px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      margin-top: 20px;
-    }
+    h3 { margin-bottom: 8px; color: #ccc; }
+    img { width: 100%; border-radius: 12px; margin: 20px 0; }
+    .grilla { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .grilla button { background: #333; color: white; border: 2px solid transparent; border-radius: 8px; padding: 10px 14px; font-size: 15px; cursor: pointer; }
+    .grilla button.activo { border-color: #ff0000; background: #444; }
+    .grilla button:disabled { opacity: 0.3; cursor: not-allowed; }
+    .aviso { color: #999; font-size: 14px; }
+    input { width: 80%; padding: 12px; border-radius: 8px; border: none; font-size: 16px; margin-top: 4px; }
+    .boton { display: inline-block; background-color: #25d366; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 24px; border: none; font-size: 16px; cursor: pointer; }
+    .boton.desactivado { background: #555; pointer-events: none; }
+    #mensaje { margin-top: 20px; padding: 14px; border-radius: 8px; display: none; }
+    #mensaje.ok { display: block; background: #1b3d2a; }
+    #mensaje.error { display: block; background: #4a1c1c; }
   </style>
 </head>
 <body>
   <div class="contenedor">
     <h1>Barbería Augusto</h1>
-    <p>Cortes clásicos y modernos. Sacá tu turno por WhatsApp.</p>
+    <p>Cortes clásicos y modernos. Reservá tu turno online.</p>
 
     <img src="foto1.jpg" alt="Barbería Augusto">
 
-    <h2>Servicios</h2>
-    <ul>
-      <li>Corte: $8.000</li>
-      <li>Corte + barba: $12.000</li>
-      <li>Perfilado de Barba: $10.000</li>
-    </ul>
-
     <p>Lunes a sábado de 10 a 13 hs y de 17 a 21 hs</p>
 
-    <a class="boton" href="https://wa.me/5493417193221?text=Hola!%20Quiero%20sacar%20un%20turno">Pedir turno</a>
+    <h2>Reservá tu turno</h2>
+    <h3>1. Elegí el servicio</h3>
+    <div id="servicios" class="grilla"></div>
+    <h3>2. Elegí el día</h3>
+    <div id="dias" class="grilla"></div>
+    <h3>3. Elegí la hora</h3>
+    <div id="horas" class="grilla"></div>
+    <h3>4. Tu nombre</h3>
+    <input id="nombre" type="text" placeholder="Escribí tu nombre">
+    <br>
+    <button id="reservar" class="boton desactivado">Confirmar reserva</button>
+    <div id="mensaje"></div>
   </div>
+
+  <script>
+    // ===== CONFIGURACIÓN (acá cambiás todo) =====
+    const SUPABASE_URL = "https://buvcgwjmmgzvhrnebleb.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_LVw0YJW6ujE4ST69gSrpwQ_C9do6GOT";
+
+    const CONFIG = {
+      whatsapp: "5493417193221",
+      servicios: [
+        { nombre: "Corte", precio: 8000, minutos: 30 },
+        { nombre: "Corte + barba", precio: 12000, minutos: 45 },
+        { nombre: "Perfilado de Barba", precio: 10000, minutos: 30 }
+      ],
+      // Horarios de atención por día. 0=domingo, 1=lunes ... 6=sábado. [] = cerrado
+      horarios: {
+        0: [],
+        1: [["10:00", "13:00"], ["17:00", "21:00"]],
+        2: [["10:00", "13:00"], ["17:00", "21:00"]],
+        3: [["10:00", "13:00"], ["17:00", "21:00"]],
+        4: [["10:00", "13:00"], ["17:00", "21:00"]],
+        5: [["10:00", "13:00"], ["17:00", "21:00"]],
+        6: [["10:00", "13:00"], ["17:00", "21:00"]]
+      },
+      intervalo: 30,
+      diasAdelante: 14,
+      diasBloqueados: ["2026-12-25", "2027-01-01"],
+      horasBloqueadas: {}
+    };
+    // ===== FIN DE LA CONFIGURACIÓN =====
+
+    const nombresDias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    const sel = { servicio: null, dia: null, hora: null };
+    let ocupados = [];
+
+    const pad = n => String(n).padStart(2, "0");
+    const aMin = h => { const p = h.split(":"); return Number(p[0]) * 60 + Number(p[1]); };
+    const aTexto = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
+    const fechaISO = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    const diaTexto = d => nombresDias[d.getDay()] + " " + d.getDate() + "/" + (d.getMonth() + 1);
+
+    // ---------- Base de datos ----------
+    async function cargarOcupados() {
+      try {
+        const hoy = new Date();
+        const hasta = new Date();
+        hasta.setDate(hasta.getDate() + CONFIG.diasAdelante);
+        const r = await fetch(SUPABASE_URL + "/rest/v1/rpc/turnos_ocupados", {
+          method: "POST",
+          headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({ desde: fechaISO(hoy), hasta: fechaISO(hasta) })
+        });
+        if (!r.ok) throw new Error("Error " + r.status);
+        ocupados = await r.json();
+      } catch (e) {
+        mostrarMensaje("error", "No se pudieron cargar los horarios ocupados. Recargá la página.");
+      }
+    }
+
+    function estaOcupado(iso, t, duracion) {
+      return ocupados.some(function (o) {
+        if (o.fecha !== iso) return false;
+        const inicio = aMin(o.hora.slice(0, 5));
+        return t < inicio + o.minutos && inicio < t + duracion;
+      });
+    }
+
+    function mostrarMensaje(tipo, html) {
+      const m = document.getElementById("mensaje");
+      m.className = tipo;
+      m.innerHTML = html;
+    }
+
+    // ---------- Horarios ----------
+    function generarHoras(fecha, servicio) {
+      const iso = fechaISO(fecha);
+      if (CONFIG.diasBloqueados.includes(iso)) return [];
+      const bloqueadas = CONFIG.horasBloqueadas[iso] || [];
+      const ahora = new Date();
+      const esHoy = fechaISO(ahora) === iso;
+      const minAhora = ahora.getHours() * 60 + ahora.getMinutes();
+      const resultado = [];
+      (CONFIG.horarios[fecha.getDay()] || []).forEach(function (rango) {
+        const fin = aMin(rango[1]);
+        for (let t = aMin(rango[0]); t + servicio.minutos <= fin; t += CONFIG.intervalo) {
+          if (esHoy && t <= minAhora) continue;
+          if (bloqueadas.includes(aTexto(t))) continue;
+          if (estaOcupado(iso, t, servicio.minutos)) continue;
+          resultado.push(aTexto(t));
+        }
+      });
+      return resultado;
+    }
+
+    function crearBoton(texto, activo, deshabilitado, onClick) {
+      const b = document.createElement("button");
+      b.textContent = texto;
+      if (activo) b.className = "activo";
+      b.disabled = deshabilitado;
+      b.onclick = onClick;
+      return b;
+    }
+
+    function renderServicios() {
+      const cont = document.getElementById("servicios");
+      cont.innerHTML = "";
+      CONFIG.servicios.forEach(function (s) {
+        const txt = s.nombre + " ($" + s.precio.toLocaleString("es-AR") + ")";
+        cont.appendChild(crearBoton(txt, sel.servicio === s, false, function () {
+          sel.servicio = s; sel.dia = null; sel.hora = null;
+          renderServicios(); renderDias(); renderHoras(); actualizar();
+        }));
+      });
+    }
+
+    function renderDias() {
+      const cont = document.getElementById("dias");
+      cont.innerHTML = "";
+      if (!sel.servicio) { cont.innerHTML = '<p class="aviso">Primero elegí un servicio</p>'; return; }
+      for (let i = 0; i < CONFIG.diasAdelante; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        const sinTurnos = generarHoras(d, sel.servicio).length === 0;
+        const activo = sel.dia && fechaISO(sel.dia) === fechaISO(d);
+        cont.appendChild(crearBoton(diaTexto(d), activo, sinTurnos, function () {
+          sel.dia = d; sel.hora = null;
+          renderDias(); renderHoras(); actualizar();
+        }));
+      }
+    }
+
+    function renderHoras() {
+      const cont = document.getElementById("horas");
+      cont.innerHTML = "";
+      if (!sel.dia) { cont.innerHTML = '<p class="aviso">Primero elegí un día</p>'; return; }
+      generarHoras(sel.dia, sel.servicio).forEach(function (h) {
+        cont.appendChild(crearBoton(h, sel.hora === h, false, function () {
+          sel.hora = h; renderHoras(); actualizar();
+        }));
+      });
+    }
+
+    function actualizar() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const boton = document.getElementById("reservar");
+      const listo = sel.servicio && sel.dia && sel.hora && nombre;
+      boton.className = listo ? "boton" : "boton desactivado";
+    }
+
+    // ---------- Reservar ----------
+    async function reservar() {
+      const nombre = document.getElementById("nombre").value.trim();
+      const boton = document.getElementById("reservar");
+      if (!(sel.servicio && sel.dia && sel.hora && nombre)) return;
+
+      const turno = {
+        fecha: fechaISO(sel.dia),
+        hora: sel.hora,
+        servicio: sel.servicio.nombre,
+        minutos: sel.servicio.minutos,
+        nombre: nombre
+      };
+      const textoWA = "Hola! Reservé un turno.\n" +
+        "Servicio: " + turno.servicio + "\n" +
+        "Día: " + diaTexto(sel.dia) + "\n" +
+        "Hora: " + turno.hora + "\n" +
+        "Nombre: " + nombre;
+
+      boton.textContent = "Reservando...";
+      boton.className = "boton desactivado";
+
+      try {
+        const r = await fetch(SUPABASE_URL + "/rest/v1/turnos", {
+          method: "POST",
+          headers: {
+            "apikey": SUPABASE_KEY,
+            "Content-Type": "application/json",
+            "Prefer": "return=minimal"
+          },
+          body: JSON.stringify(turno)
+        });
+
+        if (r.ok) {
+          const link = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(textoWA);
+          mostrarMensaje("ok",
+            "<strong>¡Turno reservado!</strong><br>" + diaTexto(sel.dia) + " a las " + turno.hora +
+            "<br><br><a class='boton' href='" + link + "'>Avisar por WhatsApp</a>");
+          sel.servicio = null; sel.dia = null; sel.hora = null;
+          document.getElementById("nombre").value = "";
+        } else if (r.status === 409) {
+          mostrarMensaje("error", "Ese horario se acaba de ocupar. Elegí otro, por favor.");
+          sel.hora = null;
+        } else {
+          mostrarMensaje("error", "No se pudo reservar. Probá de nuevo en unos minutos.");
+        }
+      } catch (e) {
+        mostrarMensaje("error", "No hay conexión. Probá de nuevo.");
+      }
+
+      boton.textContent = "Confirmar reserva";
+      await cargarOcupados();
+      renderServicios(); renderDias(); renderHoras(); actualizar();
+    }
+
+    document.getElementById("nombre").addEventListener("input", actualizar);
+    document.getElementById("reservar").addEventListener("click", reservar);
+
+    async function iniciar() {
+      await cargarOcupados();
+      renderServicios(); renderDias(); renderHoras(); actualizar();
+    }
+    iniciar();
+  </script>
 </body>
 </html>

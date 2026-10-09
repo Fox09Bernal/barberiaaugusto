@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Panel - Barbería Augusto</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #111; color: white; margin: 0; padding: 20px; }
+    .contenedor { max-width: 500px; margin: 0 auto; }
+    h1 { color: #ff0000; text-align: center; }
+    h2 { margin-top: 30px; }
+    input, select { padding: 12px; border-radius: 8px; border: none; font-size: 16px; box-sizing: border-box; }
+    #login input { width: 100%; margin-bottom: 10px; }
+    button { background: #333; color: white; border: none; border-radius: 8px; padding: 12px 16px; font-size: 15px; cursor: pointer; }
+    button.principal { background: #25d366; font-weight: bold; width: 100%; }
+    button.peligro { background: #7a1f1f; }
+    .fila-fecha { display: flex; gap: 8px; justify-content: center; align-items: center; margin-bottom: 16px; }
+    .turno { background: #222; border-radius: 8px; padding: 12px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .turno.bloqueo { background: #2c2c1a; border: 1px dashed #888; }
+    .turno .hora { font-size: 18px; font-weight: bold; }
+    .turno .detalle { color: #bbb; font-size: 14px; }
+    .vacio { color: #999; text-align: center; padding: 20px; }
+    .fila { display: flex; gap: 8px; margin-bottom: 10px; }
+    .fila > * { flex: 1; }
+    #msg, #msgLogin { margin-top: 14px; padding: 12px; border-radius: 8px; display: none; }
+    .ok { display: block !important; background: #1b3d2a; }
+    .error { display: block !important; background: #4a1c1c; }
+    #salir { float: right; padding: 8px 12px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <h1>Panel Barbería Augusto</h1>
+
+    <div id="login">
+      <input id="email" type="email" placeholder="Email">
+      <input id="clave" type="password" placeholder="Contraseña">
+      <button id="entrar" class="principal">Entrar</button>
+      <div id="msgLogin"></div>
+    </div>
+
+    <div id="panel" style="display:none">
+      <button id="salir">Cerrar sesión</button>
+      <div style="clear:both"></div>
+
+      <h2>Turnos del día</h2>
+      <div class="fila-fecha">
+        <button id="ant">◀</button>
+        <input id="fecha" type="date">
+        <button id="sig">▶</button>
+      </div>
+      <div id="lista"></div>
+
+      <h2>Bloquear horario</h2>
+      <div class="fila">
+        <input id="horaBloqueo" type="time" value="10:00">
+        <select id="duracion">
+          <option value="30">30 min</option>
+          <option value="60" selected>1 hora</option>
+          <option value="90">1 h 30</option>
+          <option value="120">2 horas</option>
+          <option value="180">3 horas</option>
+        </select>
+      </div>
+      <button id="bloquear" class="principal">Bloquear ese horario</button>
+      <br><br>
+      <button id="bloquearDia" class="peligro" style="width:100%">Bloquear el día completo</button>
+
+      <div id="msg"></div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://buvcgwjmmgzvhrnebleb.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_LVw0YJW6ujE4ST69gSrpwQ_C9do6GOT";
+
+    let token = sessionStorage.getItem("token");
+    const $ = id => document.getElementById(id);
+    const pad = n => String(n).padStart(2, "0");
+    const fechaISO = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    const aMin = h => { const p = h.split(":"); return Number(p[0]) * 60 + Number(p[1]); };
+    const aTexto = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
+
+    function cabeceras() {
+      return { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + token, "Content-Type": "application/json" };
+    }
+
+    function mostrar(id, tipo, texto) {
+      const el = $(id);
+      el.className = tipo;
+      el.textContent = texto;
+    }
+
+    // ---------- Login ----------
+    async function entrar() {
+      const email = $("email").value.trim();
+      const clave = $("clave").value;
+      if (!email || !clave) { mostrar("msgLogin", "error", "Completá email y contraseña."); return; }
+      try {
+        const r = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+          method: "POST",
+          headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email, password: clave })
+        });
+        const datos = await r.json();
+        if (!r.ok || !datos.access_token) { mostrar("msgLogin", "error", "Email o contraseña incorrectos."); return; }
+        token = datos.access_token;
+        sessionStorage.setItem("token", token);
+        mostrarPanel();
+      } catch (e) {
+        mostrar("msgLogin", "error", "No hay conexión. Probá de nuevo.");
+      }
+    }
+
+    function salir(aviso) {
+      token = null;
+      sessionStorage.removeItem("token");
+      $("panel").style.display = "none";
+      $("login").style.display = "block";
+      if (aviso) mostrar("msgLogin", "error", aviso);
+    }
+
+    function mostrarPanel() {
+      $("login").style.display = "none";
+      $("panel").style.display = "block";
+      $("msgLogin").className = "";
+      if (!$("fecha").value) $("fecha").value = fechaISO(new Date());
+      cargar();
+    }
+
+    // ---------- Turnos ----------
+    async function cargar() {
+      const fecha = $("fecha").value;
+      const lista = $("lista");
+      lista.innerHTML = '<div class="vacio">Cargando...</div>';
+      try {
+        const r = await fetch(
+          SUPABASE_URL + "/rest/v1/turnos?fecha=eq." + fecha + "&estado=eq.activo&order=hora.asc&select=id,hora,servicio,minutos,nombre",
+          { headers: cabeceras() }
+        );
+        if (r.status === 401) { salir("Tu sesión venció. Entrá de nuevo."); return; }
+        if (!r.ok) throw new Error("Error " + r.status);
+        dibujar(await r.json());
+      } catch (e) {
+        lista.innerHTML = '<div class="vacio">No se pudieron cargar los turnos.</div>';
+      }
+    }
+
+    function dibujar(turnos) {
+      const lista = $("lista");
+      lista.innerHTML = "";
+      if (turnos.length === 0) {
+        lista.innerHTML = '<div class="vacio">No hay turnos para este día.</div>';
+        return;
+      }
+      turnos.forEach(function (t) {
+        const inicio = aMin(t.hora.slice(0, 5));
+        const esBloqueo = t.servicio === "BLOQUEO";
+
+        const caja = document.createElement("div");
+        caja.className = "turno" + (esBloqueo ? " bloqueo" : "");
+
+        const info = document.createElement("div");
+        const hora = document.createElement("div");
+        hora.className = "hora";
+        hora.textContent = aTexto(inicio) + " a " + aTexto(inicio + t.minutos);
+        const detalle = document.createElement("div");
+        detalle.className = "detalle";
+        detalle.textContent = esBloqueo ? "Horario bloqueado" : t.nombre + " · " + t.servicio;
+        info.appendChild(hora);
+        info.appendChild(detalle);
+
+        const boton = document.createElement("button");
+        boton.className = "peligro";
+        boton.textContent = esBloqueo ? "Quitar" : "Cancelar";
+        boton.onclick = function () { cancelar(t, esBloqueo); };
+
+        caja.appendChild(info);
+        caja.appendChild(boton);
+        lista.appendChild(caja);
+      });
+    }
+
+    async function cancelar(t, esBloqueo) {
+      const pregunta = esBloqueo ? "¿Quitar este bloqueo?" : "¿Cancelar el turno de " + t.nombre + "?";
+      if (!confirm(pregunta)) return;
+      try {
+        const r = await fetch(SUPABASE_URL + "/rest/v1/turnos?id=eq." + t.id, {
+          method: "PATCH",
+          headers: Object.assign({ "Prefer": "return=minimal" }, cabeceras()),
+          body: JSON.stringify({ estado: "cancelado" })
+        });
+        if (r.status === 401) { salir("Tu sesión venció. Entrá de nuevo."); return; }
+        if (!r.ok) throw new Error();
+        mostrar("msg", "ok", esBloqueo ? "Bloqueo quitado." : "Turno cancelado. Avisale al cliente por WhatsApp.");
+        cargar();
+      } catch (e) {
+        mostrar("msg", "error", "No se pudo completar. Probá de nuevo.");
+      }
+    }
+
+    async function crearBloqueo(hora, minutos, textoOk) {
+      try {
+        const r = await fetch(SUPABASE_URL + "/rest/v1/turnos", {
+          method: "POST",
+          headers: Object.assign({ "Prefer": "return=minimal" }, cabeceras()),
+          body: JSON.stringify({
+            fecha: $("fecha").value,
+            hora: hora,
+            servicio: "BLOQUEO",
+            minutos: minutos,
+            nombre: "Bloqueado"
+          })
+        });
+        if (r.status === 401) { salir("Tu sesión venció. Entrá de nuevo."); return; }
+        if (r.status === 409) {
+          mostrar("msg", "error", "Ya hay turnos o bloqueos en ese horario. Cancelalos primero y volvé a intentar.");
+          return;
+        }
+        if (!r.ok) throw new Error();
+        mostrar("msg", "ok", textoOk);
+        cargar();
+      } catch (e) {
+        mostrar("msg", "error", "No se pudo bloquear. Probá de nuevo.");
+      }
+    }
+
+    // ---------- Botones ----------
+    $("entrar").onclick = entrar;
+    $("clave").addEventListener("keydown", function (e) { if (e.key === "Enter") entrar(); });
+    $("salir").onclick = function () { salir(); };
+    $("fecha").onchange = cargar;
+
+    function moverDia(delta) {
+      const p = $("fecha").value.split("-");
+      const d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+      d.setDate(d.getDate() + delta);
+      $("fecha").value = fechaISO(d);
+      cargar();
+    }
+    $("ant").onclick = function () { moverDia(-1); };
+    $("sig").onclick = function () { moverDia(1); };
+
+    $("bloquear").onclick = function () {
+      const hora = $("horaBloqueo").value;
+      if (!hora) { mostrar("msg", "error", "Elegí la hora de inicio."); return; }
+      crearBloqueo(hora, Number($("duracion").value), "Horario bloqueado.");
+    };
+    $("bloquearDia").onclick = function () {
+      if (!confirm("¿Bloquear todo el día " + $("fecha").value + "?")) return;
+      crearBloqueo("00:00", 1439, "Día completo bloqueado.");
+    };
+
+    if (token) mostrarPanel();
+  </script>
+</body>
+</html>
