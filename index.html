@@ -3,48 +3,136 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Barbería Augusto</title>
+  <title>Barbería Augusto | Reservá tu turno</title>
+  <meta name="description" content="Reservá tu turno online en Barbería Augusto.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: Arial, sans-serif; background-color: #111; color: white; text-align: center; margin: 0; padding: 30px 20px; }
-    .contenedor { max-width: 500px; margin: 0 auto; }
-    h1 { color: #ff0000; }
-    h3 { margin-bottom: 8px; color: #ccc; }
-    img { width: 100%; border-radius: 12px; margin: 20px 0; }
-    .grilla { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .grilla button { background: #333; color: white; border: 2px solid transparent; border-radius: 8px; padding: 10px 14px; font-size: 15px; cursor: pointer; }
-    .grilla button.activo { border-color: #ff0000; background: #444; }
-    .grilla button:disabled { opacity: 0.3; cursor: not-allowed; }
-    .aviso { color: #999; font-size: 14px; }
-    input { width: 80%; padding: 12px; border-radius: 8px; border: none; font-size: 16px; margin-top: 4px; }
-    .boton { display: inline-block; background-color: #25d366; color: white; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 24px; border: none; font-size: 16px; cursor: pointer; }
-    .boton.desactivado { background: #555; pointer-events: none; }
-    #mensaje { margin-top: 20px; padding: 14px; border-radius: 8px; display: none; }
-    #mensaje.ok { display: block; background: #1b3d2a; }
-    #mensaje.error { display: block; background: #4a1c1c; }
+    :root {
+      --acento: #e63946;      /* ← CAMBIÁ ESTE COLOR para cambiar el estilo de toda la página */
+      --fondo: #0d0d0d;
+      --tarjeta: #181818;
+      --borde: #2a2a2a;
+      --texto: #f2f2f2;
+      --suave: #9a9a9a;
+      --verde: #25d366;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: 'Inter', Arial, sans-serif; background: var(--fondo); color: var(--texto); line-height: 1.5; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 0 20px; }
+
+    /* Portada */
+    .hero {
+      min-height: 80vh; display: flex; align-items: flex-end;
+      background: linear-gradient(to top, #0d0d0d 4%, rgba(13,13,13,.55) 55%, rgba(13,13,13,.35)), url('foto1.jpg') center / cover no-repeat;
+    }
+    .hero .wrap { width: 100%; padding-bottom: 44px; }
+    .etiqueta { letter-spacing: 3px; font-size: 12px; text-transform: uppercase; color: var(--acento); font-weight: 600; }
+    h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 46px; line-height: 1.08; margin: 10px 0 12px; }
+    .hero p { color: #ddd; margin: 0 0 24px; font-size: 17px; }
+    h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; margin: 0 0 18px; }
+
+    /* Botones */
+    .btn-principal {
+      display: block; width: 100%; text-align: center; background: var(--acento); color: white; border: none;
+      padding: 16px 24px; border-radius: 12px; font: 600 16px 'Inter', Arial, sans-serif; text-decoration: none; cursor: pointer;
+    }
+    .btn-principal.desactivado { background: #333; color: #777; pointer-events: none; }
+    .btn-sec {
+      display: block; text-align: center; background: transparent; color: var(--texto); border: 1px solid var(--borde);
+      padding: 14px 20px; border-radius: 12px; font: 500 15px 'Inter', Arial, sans-serif; text-decoration: none; margin-bottom: 10px;
+    }
+
+    /* Secciones */
+    .seccion { padding: 44px 0 8px; }
+    .servicio { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--borde); }
+    .servicio .nombre { font-weight: 600; font-size: 17px; }
+    .servicio .duracion { color: var(--suave); font-size: 14px; }
+    .servicio .precio { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; color: var(--acento); }
+
+    /* Reservas */
+    .tarjeta { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 18px; padding: 22px; }
+    .paso { display: flex; align-items: center; gap: 10px; margin: 24px 0 12px; font-weight: 600; }
+    .paso:first-child { margin-top: 0; }
+    .num { width: 26px; height: 26px; border-radius: 50%; background: var(--acento); display: grid; place-items: center; font-size: 13px; flex-shrink: 0; }
+    .grilla { display: flex; flex-wrap: wrap; gap: 10px; }
+    .grilla.scroll { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; }
+    .chip {
+      background: #222; border: 1px solid var(--borde); color: var(--texto); border-radius: 12px; padding: 10px 14px;
+      font: 500 15px 'Inter', Arial, sans-serif; cursor: pointer; display: flex; flex-direction: column; align-items: center; min-width: 72px; flex-shrink: 0;
+    }
+    .chip-b { font-size: 12px; color: var(--suave); margin-top: 2px; }
+    .chip.activo { border-color: var(--acento); background: rgba(230,57,70,.14); }
+    .chip:disabled { opacity: .3; cursor: not-allowed; }
+    .aviso { color: var(--suave); font-size: 14px; margin: 0; }
+    input {
+      width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--borde); background: #222; color: var(--texto);
+      font: 16px 'Inter', Arial, sans-serif;
+    }
+    input:focus { outline: none; border-color: var(--acento); }
+    #reservar { margin-top: 24px; }
+    #mensaje { margin-top: 16px; padding: 16px; border-radius: 12px; display: none; text-align: center; }
+    #mensaje.ok { display: block; background: #12301f; border: 1px solid #1f5c3a; }
+    #mensaje.error { display: block; background: #3a1616; border: 1px solid #6b2525; }
+    #mensaje .btn-principal { background: var(--verde); margin-top: 12px; }
+
+    /* Contacto */
+    .info p { margin: 0 0 16px; }
+    .info strong { display: block; color: var(--suave); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
+    footer { text-align: center; color: var(--suave); font-size: 13px; padding: 40px 20px; }
   </style>
 </head>
 <body>
-  <div class="contenedor">
-    <h1>Barbería Augusto</h1>
-    <p>Cortes clásicos y modernos. Reservá tu turno online.</p>
 
-    <img src="foto1.jpg" alt="Barbería Augusto">
+  <header class="hero">
+    <div class="wrap">
+      <div class="etiqueta">Barbería</div>
+      <h1>Barbería Augusto</h1>
+      <p>Cortes clásicos y modernos. Reservá tu turno online en menos de un minuto.</p>
+      <a href="#reservas" class="btn-principal">Reservar turno</a>
+    </div>
+  </header>
 
-    <p>Lunes a sábado de 10 a 13 hs y de 17 a 21 hs</p>
+  <main class="wrap">
 
-    <h2>Reservá tu turno</h2>
-    <h3>1. Elegí el servicio</h3>
-    <div id="servicios" class="grilla"></div>
-    <h3>2. Elegí el día</h3>
-    <div id="dias" class="grilla"></div>
-    <h3>3. Elegí la hora</h3>
-    <div id="horas" class="grilla"></div>
-    <h3>4. Tu nombre</h3>
-    <input id="nombre" type="text" placeholder="Escribí tu nombre">
-    <br>
-    <button id="reservar" class="boton desactivado">Confirmar reserva</button>
-    <div id="mensaje"></div>
-  </div>
+    <section class="seccion">
+      <h2>Servicios</h2>
+      <div id="listaServicios"></div>
+    </section>
+
+    <section class="seccion" id="reservas">
+      <h2>Reservá tu turno</h2>
+      <div class="tarjeta">
+        <div class="paso"><span class="num">1</span> Elegí el servicio</div>
+        <div id="servicios" class="grilla"></div>
+
+        <div class="paso"><span class="num">2</span> Elegí el día</div>
+        <div id="dias" class="grilla scroll"></div>
+
+        <div class="paso"><span class="num">3</span> Elegí la hora</div>
+        <div id="horas" class="grilla"></div>
+
+        <div class="paso"><span class="num">4</span> Tu nombre</div>
+        <input id="nombre" type="text" placeholder="Escribí tu nombre" autocomplete="name">
+
+        <button id="reservar" class="btn-principal desactivado" type="button">Confirmar reserva</button>
+        <div id="mensaje"></div>
+      </div>
+    </section>
+
+    <section class="seccion info">
+      <h2>Horarios y contacto</h2>
+      <p><strong>Horarios</strong>Lunes a sábado<br>10 a 13 hs y 17 a 21 hs</p>
+      <p id="filaDireccion" hidden><strong>Dirección</strong><span id="textoDireccion"></span></p>
+      <div id="contactoBotones"></div>
+    </section>
+
+  </main>
+
+  <footer>© Barbería Augusto</footer>
 
   <script>
     // ===== CONFIGURACIÓN (acá cambiás todo) =====
@@ -53,6 +141,8 @@
 
     const CONFIG = {
       whatsapp: "5493417193221",
+      instagram: "",   // Ej: "https://instagram.com/barberiaaugusto" (vacío = no se muestra)
+      direccion: "",   // Ej: "Av. Pellegrini 1234, Rosario" (vacío = no se muestra)
       servicios: [
         { nombre: "Corte", precio: 8000, minutos: 30 },
         { nombre: "Corte + barba", precio: 12000, minutos: 45 },
@@ -76,6 +166,7 @@
     // ===== FIN DE LA CONFIGURACIÓN =====
 
     const nombresDias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    const nombresCortos = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
     const sel = { servicio: null, dia: null, hora: null };
     let ocupados = [];
 
@@ -84,6 +175,7 @@
     const aTexto = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
     const fechaISO = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
     const diaTexto = d => nombresDias[d.getDay()] + " " + d.getDate() + "/" + (d.getMonth() + 1);
+    const plata = n => "$" + n.toLocaleString("es-AR");
 
     // ---------- Base de datos ----------
     async function cargarOcupados() {
@@ -138,21 +230,54 @@
       return resultado;
     }
 
-    function crearBoton(texto, activo, deshabilitado, onClick) {
+    // ---------- Dibujar ----------
+    function crearChip(principal, secundario, activo, deshabilitado, onClick) {
       const b = document.createElement("button");
-      b.textContent = texto;
-      if (activo) b.className = "activo";
+      b.type = "button";
+      b.className = "chip" + (activo ? " activo" : "");
+      const a = document.createElement("span");
+      a.textContent = principal;
+      b.appendChild(a);
+      if (secundario) {
+        const s = document.createElement("span");
+        s.className = "chip-b";
+        s.textContent = secundario;
+        b.appendChild(s);
+      }
       b.disabled = deshabilitado;
       b.onclick = onClick;
       return b;
+    }
+
+    function renderListaServicios() {
+      const cont = document.getElementById("listaServicios");
+      cont.innerHTML = "";
+      CONFIG.servicios.forEach(function (s) {
+        const fila = document.createElement("div");
+        fila.className = "servicio";
+        const izq = document.createElement("div");
+        const n = document.createElement("div");
+        n.className = "nombre";
+        n.textContent = s.nombre;
+        const d = document.createElement("div");
+        d.className = "duracion";
+        d.textContent = s.minutos + " min";
+        izq.appendChild(n);
+        izq.appendChild(d);
+        const p = document.createElement("div");
+        p.className = "precio";
+        p.textContent = plata(s.precio);
+        fila.appendChild(izq);
+        fila.appendChild(p);
+        cont.appendChild(fila);
+      });
     }
 
     function renderServicios() {
       const cont = document.getElementById("servicios");
       cont.innerHTML = "";
       CONFIG.servicios.forEach(function (s) {
-        const txt = s.nombre + " ($" + s.precio.toLocaleString("es-AR") + ")";
-        cont.appendChild(crearBoton(txt, sel.servicio === s, false, function () {
+        cont.appendChild(crearChip(s.nombre, plata(s.precio) + " · " + s.minutos + " min", sel.servicio === s, false, function () {
           sel.servicio = s; sel.dia = null; sel.hora = null;
           renderServicios(); renderDias(); renderHoras(); actualizar();
         }));
@@ -168,7 +293,7 @@
         d.setDate(d.getDate() + i);
         const sinTurnos = generarHoras(d, sel.servicio).length === 0;
         const activo = sel.dia && fechaISO(sel.dia) === fechaISO(d);
-        cont.appendChild(crearBoton(diaTexto(d), activo, sinTurnos, function () {
+        cont.appendChild(crearChip(nombresCortos[d.getDay()], d.getDate() + "/" + (d.getMonth() + 1), activo, sinTurnos, function () {
           sel.dia = d; sel.hora = null;
           renderDias(); renderHoras(); actualizar();
         }));
@@ -180,7 +305,7 @@
       cont.innerHTML = "";
       if (!sel.dia) { cont.innerHTML = '<p class="aviso">Primero elegí un día</p>'; return; }
       generarHoras(sel.dia, sel.servicio).forEach(function (h) {
-        cont.appendChild(crearBoton(h, sel.hora === h, false, function () {
+        cont.appendChild(crearChip(h, "", sel.hora === h, false, function () {
           sel.hora = h; renderHoras(); actualizar();
         }));
       });
@@ -190,7 +315,27 @@
       const nombre = document.getElementById("nombre").value.trim();
       const boton = document.getElementById("reservar");
       const listo = sel.servicio && sel.dia && sel.hora && nombre;
-      boton.className = listo ? "boton" : "boton desactivado";
+      boton.className = listo ? "btn-principal" : "btn-principal desactivado";
+    }
+
+    function renderContacto() {
+      const cont = document.getElementById("contactoBotones");
+      function enlace(texto, url) {
+        const a = document.createElement("a");
+        a.className = "btn-sec";
+        a.textContent = texto;
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        cont.appendChild(a);
+      }
+      enlace("Escribinos por WhatsApp", "https://wa.me/" + CONFIG.whatsapp);
+      if (CONFIG.instagram) enlace("Seguinos en Instagram", CONFIG.instagram);
+      if (CONFIG.direccion) {
+        document.getElementById("filaDireccion").hidden = false;
+        document.getElementById("textoDireccion").textContent = CONFIG.direccion;
+        enlace("Cómo llegar", "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.direccion));
+      }
     }
 
     // ---------- Reservar ----------
@@ -213,7 +358,7 @@
         "Nombre: " + nombre;
 
       boton.textContent = "Reservando...";
-      boton.className = "boton desactivado";
+      boton.className = "btn-principal desactivado";
 
       try {
         const r = await fetch(SUPABASE_URL + "/rest/v1/turnos", {
@@ -230,7 +375,7 @@
           const link = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(textoWA);
           mostrarMensaje("ok",
             "<strong>¡Turno reservado!</strong><br>" + diaTexto(sel.dia) + " a las " + turno.hora +
-            "<br><br><a class='boton' href='" + link + "'>Avisar por WhatsApp</a>");
+            "<br><a class='btn-principal' href='" + link + "'>Avisar por WhatsApp</a>");
           sel.servicio = null; sel.dia = null; sel.hora = null;
           document.getElementById("nombre").value = "";
         } else if (r.status === 409) {
@@ -252,6 +397,8 @@
     document.getElementById("reservar").addEventListener("click", reservar);
 
     async function iniciar() {
+      renderListaServicios();
+      renderContacto();
       await cargarOcupados();
       renderServicios(); renderDias(); renderHoras(); actualizar();
     }
