@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b0b0b">
-  <title>Barbería Augusto | Reservá tu turno</title>
-  <meta name="description" content="Reservá tu turno online en Barbería Augusto. Cortes clásicos y modernos.">
+  <title>Reservá tu turno</title>
+  <meta name="description" content="Reservá tu turno online.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
@@ -38,15 +38,16 @@
     .hero .wrap { width: 100%; padding-bottom: 48px; }
     .hero p { color: #ddd6c8; margin: 0 0 26px; font-size: 17px; }
 
-    /* Botones (mismo estilo que el panel) */
+    /* Botones */
     button { font: 600 15px 'Inter', Arial, sans-serif; cursor: pointer; }
     .btn-principal {
       display: block; width: 100%; text-align: center; background: var(--acento); color: #111; border: none;
       padding: 15px 24px; border-radius: 10px; font: 600 16px 'Inter', Arial, sans-serif; text-decoration: none; cursor: pointer;
     }
     .btn-principal.desactivado { background: #2c2c2c; color: #777; pointer-events: none; }
+    .btn-principal.verde { background: var(--verde); color: #fff; }
     .btn-sec {
-      display: block; text-align: center; background: #1f1f1f; color: var(--texto); border: 1px solid var(--borde);
+      display: block; width: 100%; text-align: center; background: #1f1f1f; color: var(--texto); border: 1px solid var(--borde);
       padding: 14px 20px; border-radius: 10px; font: 500 15px 'Inter', Arial, sans-serif; text-decoration: none; margin-bottom: 10px;
     }
     .btn-sec:hover { border-color: var(--acento); }
@@ -82,17 +83,26 @@
     .chip:disabled { opacity: .3; cursor: not-allowed; }
     .chip:disabled:hover { border-color: var(--borde); }
     .aviso { color: var(--suave); font-size: 14px; margin: 0; }
-    input {
+    input[type=text], input[type=tel] {
       width: 100%; padding: 13px; border-radius: 10px; border: 1px solid var(--borde); background: #1f1f1f; color: var(--texto);
       font: 16px 'Inter', Arial, sans-serif;
     }
     input:focus { outline: none; border-color: var(--acento); }
+    .separado { margin-top: 10px; }
+    .trampa { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
     #reservar { margin-top: 24px; }
     #mensaje { margin-top: 16px; padding: 16px; border-radius: 12px; display: none; text-align: center; }
     #mensaje.ok { display: block; background: #12301f; border: 1px solid #1f5c3a; }
     #mensaje.error { display: block; background: #3a1616; border: 1px solid #6b2525; }
-    #mensaje .btn-principal { background: var(--verde); color: #fff; margin-top: 12px; }
+    #mensaje .acciones { margin-top: 14px; }
+    #mensaje .aviso { margin-top: 10px; color: #cfd8d2; }
     .politica { color: var(--suave); font-size: 13px; margin: 14px 0 0; text-align: center; }
+
+    /* Mi turno */
+    .mt-hora { font-family: 'Oswald', Impact, sans-serif; font-size: 26px; letter-spacing: 1px; color: var(--acento); text-transform: capitalize; }
+    .mt-det { color: var(--suave); margin-bottom: 14px; }
+    .mt-msg { margin: 0 0 12px; }
+    .btn-peligro { display: block; width: 100%; background: #7a1f1f; color: #fff; border: none; border-radius: 10px; padding: 14px; }
 
     /* Opiniones */
     .opinion { background: var(--tarjeta); border: 1px solid var(--borde); border-left: 4px solid var(--acento); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
@@ -100,9 +110,17 @@
     .opinion span { color: var(--acento); font-size: 14px; font-weight: 600; }
 
     /* Contacto */
-    .info p { margin: 0 0 18px; }
-    .info strong { display: block; color: var(--acento); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 3px; }
+    .hfila { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--borde); font-size: 15px; }
+    .hfila span:first-child { font-weight: 600; }
+    .hfila span:last-child { color: var(--suave); text-align: right; }
+    .bloque { margin-top: 18px; }
+    .etiqueta-chica { display: block; color: var(--acento); font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 3px; }
+
     footer { text-align: center; color: var(--suave); font-size: 13px; padding: 44px 20px 100px; }
+    .firma { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--borde); }
+    .firma span { display: block; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--suave); }
+    .firma strong { display: block; font-family: 'Oswald', Impact, sans-serif; font-size: 22px; letter-spacing: 2px; color: var(--acento); margin: 4px 0 10px; text-transform: uppercase; }
+    .firma a { color: var(--texto); font-size: 14px; text-decoration: none; border-bottom: 1px solid var(--acento); }
 
     /* Botón flotante de WhatsApp */
     .flotante {
@@ -116,13 +134,18 @@
   <header class="hero">
     <div class="wrap">
       <div class="etiqueta">Barbería</div>
-      <h1>Barbería<br>Augusto</h1>
-      <p>Cortes clásicos y modernos. Reservá tu turno online en menos de un minuto.</p>
+      <h1 id="titulo"></h1>
+      <p id="frase"></p>
       <a href="#reservas" class="btn-principal">Reservar turno</a>
     </div>
   </header>
 
   <main class="wrap">
+
+    <section class="seccion" id="miTurno" hidden>
+      <h2>Tu turno</h2>
+      <div class="tarjeta" id="miTurnoCaja"></div>
+    </section>
 
     <section class="seccion">
       <h2>Servicios</h2>
@@ -146,8 +169,11 @@
         <div class="paso"><span class="num">3</span> Elegí la hora</div>
         <div id="horas" class="grilla"></div>
 
-        <div class="paso"><span class="num">4</span> Tu nombre</div>
-        <input id="nombre" type="text" placeholder="Escribí tu nombre" autocomplete="name">
+        <div class="paso"><span class="num">4</span> Tus datos</div>
+        <input id="nombre" type="text" placeholder="Tu nombre" autocomplete="name" maxlength="60">
+        <input id="telefono" type="tel" inputmode="tel" class="separado" placeholder="Tu WhatsApp (ej: 3411234567)" autocomplete="tel" maxlength="20">
+        <p class="aviso separado">Con código de área, sin 0 ni 15. Lo usamos solo para avisarte sobre tu turno.</p>
+        <input id="contacto_extra" type="text" class="trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
 
         <button id="reservar" class="btn-principal desactivado" type="button">Confirmar reserva</button>
         <div id="mensaje"></div>
@@ -160,90 +186,101 @@
       <div id="opiniones"></div>
     </section>
 
-    <section class="seccion info">
+    <section class="seccion">
       <h2>Horarios y contacto</h2>
       <div class="tarjeta">
-        <p><strong>Horarios</strong>Lunes a sábado<br>10 a 13 hs y 17 a 21 hs</p>
-        <p id="filaDireccion" hidden><strong>Dirección</strong><span id="textoDireccion"></span></p>
-        <div id="contactoBotones"></div>
+        <div id="horariosTexto"></div>
+        <div class="bloque" id="filaDireccion" hidden>
+          <span class="etiqueta-chica">Dirección</span>
+          <span id="textoDireccion"></span>
+        </div>
+        <div class="bloque" id="contactoBotones"></div>
       </div>
     </section>
 
   </main>
 
   <footer>
-    <div>© Barbería Augusto</div>
-    <div id="credito" hidden></div>
+    <div>© <span id="pieNombre"></span></div>
+    <div class="firma">
+      <span>Sitio y sistema de reservas por</span>
+      <strong id="firmaNombre"></strong>
+      <a id="firmaLink" target="_blank" rel="noopener">¿Querés una para tu negocio? Escribime</a>
+    </div>
   </footer>
 
   <a id="wa" class="flotante" target="_blank" rel="noopener">WhatsApp</a>
 
   <script>
-    // ===== CONFIGURACIÓN (acá cambiás todo) =====
+    // ===== CONEXIÓN CON LA BASE DE DATOS =====
     const SUPABASE_URL = "https://buvcgwjmmgzvhrnebleb.supabase.co";
     const SUPABASE_KEY = "sb_publishable_LVw0YJW6ujE4ST69gSrpwQ_C9do6GOT";
 
-    const CONFIG = {
-      whatsapp: "5493417193221",
-      instagram: "",   // Ej: "https://instagram.com/barberiaaugusto" (vacío = no se muestra)
-      direccion: "",   // Ej: "Av. Pellegrini 1234, Rosario" (vacío = no se muestra)
-      // Fotos de la galería: las que existan en la carpeta se muestran, las que no, se ignoran
+    // ===== TU FIRMA (editá acá: tu nombre y tu WhatsApp con 549 + código de área + número) =====
+    const FIRMA = { nombre: "Diego", whatsapp: "5493417193221" };
+
+    // ===== CONTENIDO QUE VA EN EL CÓDIGO (fotos y opiniones reales) =====
+    const EXTRA = {
       galeria: ["foto2.jpg", "foto3.jpg", "foto4.jpg", "foto5.jpg"],
-      // Opiniones REALES de clientes (vacío = la sección no se muestra). Formato: { texto: "...", autor: "Nombre" }
-      opiniones: [],
-      // Política de cancelación (vacío = no se muestra)
-      politica: "Si no podés venir, avisanos por WhatsApp con anticipación.",
-      // Tu firma como creador de la página (vacío = no se muestra)
-      credito: "",
-      servicios: [
-        { nombre: "Corte", precio: 8000, minutos: 30 },
-        { nombre: "Corte + barba", precio: 12000, minutos: 45 },
-        { nombre: "Perfilado de Barba", precio: 10000, minutos: 30 }
-      ],
-      // Horarios de atención por día. 0=domingo, 1=lunes ... 6=sábado. [] = cerrado
-      horarios: {
-        0: [],
-        1: [["10:00", "13:00"], ["17:00", "21:00"]],
-        2: [["10:00", "13:00"], ["17:00", "21:00"]],
-        3: [["10:00", "13:00"], ["17:00", "21:00"]],
-        4: [["10:00", "13:00"], ["17:00", "21:00"]],
-        5: [["10:00", "13:00"], ["17:00", "21:00"]],
-        6: [["10:00", "13:00"], ["17:00", "21:00"]]
-      },
-      intervalo: 30,
-      diasAdelante: 14,
-      diasBloqueados: ["2026-12-25", "2027-01-01"],
-      horasBloqueadas: {}
+      opiniones: []   // Ej: [{ texto: "Excelente atención", autor: "Juan" }]
     };
-    // ===== FIN DE LA CONFIGURACIÓN =====
+    // Los servicios, precios, horarios, WhatsApp, Instagram, dirección y políticas
+    // se cambian desde el panel (admin.html > Configuración). No hace falta tocar nada más acá.
 
     const nombresDias = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
     const nombresCortos = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
-    const sel = { servicio: null, dia: null, hora: null };
+    let D = { ajustes: null, servicios: [], horarios: [] };
     let ocupados = [];
+    const sel = { servicio: null, dia: null, hora: null };
+    let reservando = false;
 
+    const $ = id => document.getElementById(id);
     const pad = n => String(n).padStart(2, "0");
-    const aMin = h => { const p = h.split(":"); return Number(p[0]) * 60 + Number(p[1]); };
+    const aMin = h => { const p = String(h).split(":"); return Number(p[0]) * 60 + Number(p[1]); };
     const aTexto = m => pad(Math.floor(m / 60)) + ":" + pad(m % 60);
     const fechaISO = d => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    const fechaDeISO = iso => { const p = iso.split("-"); return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])); };
     const diaTexto = d => nombresDias[d.getDay()] + " " + d.getDate() + "/" + (d.getMonth() + 1);
-    const plata = n => "$" + n.toLocaleString("es-AR");
+    const plata = n => "$" + Number(n).toLocaleString("es-AR");
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
-    // ---------- Base de datos ----------
+    function el(tag, clase, texto) {
+      const e = document.createElement(tag);
+      if (clase) e.className = clase;
+      if (texto !== undefined) e.textContent = texto;
+      return e;
+    }
+
+    async function rpc(nombre, datos) {
+      const r = await fetch(SUPABASE_URL + "/rest/v1/rpc/" + nombre, {
+        method: "POST",
+        headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify(datos || {})
+      });
+      if (!r.ok) throw new Error("Error " + r.status);
+      return r.json();
+    }
+
+    function franjasDia(dia) {
+      const h = D.horarios.find(function (x) { return x.dia === dia; });
+      return h ? h.franjas : [];
+    }
+
+    function mostrarMensaje(tipo) {
+      const m = $("mensaje");
+      m.className = tipo;
+      m.replaceChildren.apply(m, Array.prototype.slice.call(arguments, 1));
+    }
+
+    // ---------- Horarios ocupados ----------
     async function cargarOcupados() {
       try {
         const hoy = new Date();
         const hasta = new Date();
-        hasta.setDate(hasta.getDate() + CONFIG.diasAdelante);
-        const r = await fetch(SUPABASE_URL + "/rest/v1/rpc/turnos_ocupados", {
-          method: "POST",
-          headers: { "apikey": SUPABASE_KEY, "Content-Type": "application/json" },
-          body: JSON.stringify({ desde: fechaISO(hoy), hasta: fechaISO(hasta) })
-        });
-        if (!r.ok) throw new Error("Error " + r.status);
-        ocupados = await r.json();
+        hasta.setDate(hasta.getDate() + D.ajustes.dias_adelante);
+        ocupados = await rpc("turnos_ocupados", { desde: fechaISO(hoy), hasta: fechaISO(hasta) });
       } catch (e) {
-        mostrarMensaje("error", "No se pudieron cargar los horarios ocupados. Recargá la página.");
+        mostrarMensaje("error", document.createTextNode("No se pudieron cargar los horarios ocupados. Recargá la página."));
       }
     }
 
@@ -255,26 +292,17 @@
       });
     }
 
-    function mostrarMensaje(tipo, html) {
-      const m = document.getElementById("mensaje");
-      m.className = tipo;
-      m.innerHTML = html;
-    }
-
-    // ---------- Horarios ----------
     function generarHoras(fecha, servicio) {
       const iso = fechaISO(fecha);
-      if (CONFIG.diasBloqueados.includes(iso)) return [];
-      const bloqueadas = CONFIG.horasBloqueadas[iso] || [];
       const ahora = new Date();
       const esHoy = fechaISO(ahora) === iso;
       const minAhora = ahora.getHours() * 60 + ahora.getMinutes();
+      const paso = D.ajustes.intervalo;
       const resultado = [];
-      (CONFIG.horarios[fecha.getDay()] || []).forEach(function (rango) {
-        const fin = aMin(rango[1]);
-        for (let t = aMin(rango[0]); t + servicio.minutos <= fin; t += CONFIG.intervalo) {
+      franjasDia(fecha.getDay()).forEach(function (f) {
+        const fin = aMin(f[1]);
+        for (let t = aMin(f[0]); t + servicio.minutos <= fin; t += paso) {
           if (esHoy && t <= minAhora) continue;
-          if (bloqueadas.includes(aTexto(t))) continue;
           if (estaOcupado(iso, t, servicio.minutos)) continue;
           resultado.push(aTexto(t));
         }
@@ -284,82 +312,57 @@
 
     // ---------- Dibujar ----------
     function crearChip(principal, secundario, activo, deshabilitado, onClick) {
-      const b = document.createElement("button");
+      const b = el("button", "chip" + (activo ? " activo" : ""));
       b.type = "button";
-      b.className = "chip" + (activo ? " activo" : "");
-      const a = document.createElement("span");
-      a.textContent = principal;
-      b.appendChild(a);
-      if (secundario) {
-        const s = document.createElement("span");
-        s.className = "chip-b";
-        s.textContent = secundario;
-        b.appendChild(s);
-      }
+      b.appendChild(el("span", "", principal));
+      if (secundario) b.appendChild(el("span", "chip-b", secundario));
       b.disabled = deshabilitado;
       b.onclick = onClick;
       return b;
     }
 
     function renderListaServicios() {
-      const cont = document.getElementById("listaServicios");
-      cont.innerHTML = "";
-      CONFIG.servicios.forEach(function (s) {
-        const fila = document.createElement("div");
-        fila.className = "servicio";
-        const izq = document.createElement("div");
-        const n = document.createElement("div");
-        n.className = "nombre";
-        n.textContent = s.nombre;
-        const d = document.createElement("div");
-        d.className = "duracion";
-        d.textContent = s.minutos + " min";
-        izq.appendChild(n);
-        izq.appendChild(d);
-        const p = document.createElement("div");
-        p.className = "precio";
-        p.textContent = plata(s.precio);
+      const cont = $("listaServicios");
+      cont.replaceChildren();
+      if (!D.servicios.length) { cont.appendChild(el("p", "aviso", "Pronto vamos a publicar los servicios.")); return; }
+      D.servicios.forEach(function (s) {
+        const fila = el("div", "servicio");
+        const izq = el("div");
+        izq.appendChild(el("div", "nombre", s.nombre));
+        izq.appendChild(el("div", "duracion", s.minutos + " min"));
         fila.appendChild(izq);
-        fila.appendChild(p);
+        fila.appendChild(el("div", "precio", plata(s.precio)));
         cont.appendChild(fila);
       });
     }
 
     function renderGaleria() {
-      const cont = document.getElementById("galeria");
-      CONFIG.galeria.forEach(function (archivo) {
+      const cont = $("galeria");
+      EXTRA.galeria.forEach(function (archivo) {
         const img = new Image();
-        img.alt = "Trabajo de Barbería Augusto";
+        img.alt = "Trabajo de " + D.ajustes.nombre;
         img.loading = "lazy";
-        img.onload = function () {
-          cont.appendChild(img);
-          document.getElementById("seccionGaleria").hidden = false;
-        };
+        img.onload = function () { cont.appendChild(img); $("seccionGaleria").hidden = false; };
         img.src = archivo;
       });
     }
 
     function renderOpiniones() {
-      if (!CONFIG.opiniones.length) return;
-      const cont = document.getElementById("opiniones");
-      CONFIG.opiniones.forEach(function (o) {
-        const caja = document.createElement("div");
-        caja.className = "opinion";
-        const p = document.createElement("p");
-        p.textContent = "“" + o.texto + "”";
-        const s = document.createElement("span");
-        s.textContent = o.autor;
-        caja.appendChild(p);
-        caja.appendChild(s);
+      if (!EXTRA.opiniones.length) return;
+      const cont = $("opiniones");
+      EXTRA.opiniones.forEach(function (o) {
+        const caja = el("div", "opinion");
+        caja.appendChild(el("p", "", "\u201C" + o.texto + "\u201D"));
+        caja.appendChild(el("span", "", o.autor));
         cont.appendChild(caja);
       });
-      document.getElementById("seccionOpiniones").hidden = false;
+      $("seccionOpiniones").hidden = false;
     }
 
     function renderServicios() {
-      const cont = document.getElementById("servicios");
-      cont.innerHTML = "";
-      CONFIG.servicios.forEach(function (s) {
+      const cont = $("servicios");
+      cont.replaceChildren();
+      D.servicios.forEach(function (s) {
         cont.appendChild(crearChip(s.nombre, plata(s.precio) + " · " + s.minutos + " min", sel.servicio === s, false, function () {
           sel.servicio = s; sel.dia = null; sel.hora = null;
           renderServicios(); renderDias(); renderHoras(); actualizar();
@@ -368,10 +371,10 @@
     }
 
     function renderDias() {
-      const cont = document.getElementById("dias");
-      cont.innerHTML = "";
-      if (!sel.servicio) { cont.innerHTML = '<p class="aviso">Primero elegí un servicio</p>'; return; }
-      for (let i = 0; i < CONFIG.diasAdelante; i++) {
+      const cont = $("dias");
+      cont.replaceChildren();
+      if (!sel.servicio) { cont.appendChild(el("p", "aviso", "Primero elegí un servicio")); return; }
+      for (let i = 0; i < D.ajustes.dias_adelante; i++) {
         const d = new Date();
         d.setDate(d.getDate() + i);
         const sinTurnos = generarHoras(d, sel.servicio).length === 0;
@@ -384,9 +387,9 @@
     }
 
     function renderHoras() {
-      const cont = document.getElementById("horas");
-      cont.innerHTML = "";
-      if (!sel.dia) { cont.innerHTML = '<p class="aviso">Primero elegí un día</p>'; return; }
+      const cont = $("horas");
+      cont.replaceChildren();
+      if (!sel.dia) { cont.appendChild(el("p", "aviso", "Primero elegí un día")); return; }
       generarHoras(sel.dia, sel.servicio).forEach(function (h) {
         cont.appendChild(crearChip(h, "", sel.hora === h, false, function () {
           sel.hora = h; renderHoras(); actualizar();
@@ -394,109 +397,265 @@
       });
     }
 
+    function soloDigitos(t) { return String(t || "").replace(/\D/g, ""); }
+
     function actualizar() {
-      const nombre = document.getElementById("nombre").value.trim();
-      const boton = document.getElementById("reservar");
-      const listo = sel.servicio && sel.dia && sel.hora && nombre;
-      boton.className = listo ? "btn-principal" : "btn-principal desactivado";
+      const nombre = $("nombre").value.trim();
+      const tel = soloDigitos($("telefono").value);
+      const listo = sel.servicio && sel.dia && sel.hora && nombre.length >= 2 && tel.length >= 8 && !reservando;
+      $("reservar").className = listo ? "btn-principal" : "btn-principal desactivado";
     }
 
-    function renderContacto() {
-      const cont = document.getElementById("contactoBotones");
+    function textoHorarios() {
+      const orden = [1, 2, 3, 4, 5, 6, 0];
+      const grupos = [];
+      orden.forEach(function (dia) {
+        const franjas = franjasDia(dia);
+        const clave = JSON.stringify(franjas);
+        const ult = grupos[grupos.length - 1];
+        if (ult && ult.clave === clave) ult.fin = dia;
+        else grupos.push({ clave: clave, ini: dia, fin: dia, franjas: franjas });
+      });
+      return grupos.map(function (g) {
+        const nombre = g.ini === g.fin ? cap(nombresDias[g.ini]) : cap(nombresDias[g.ini]) + " a " + cap(nombresDias[g.fin]);
+        const horas = g.franjas.length
+          ? g.franjas.map(function (f) { return f[0].slice(0, 5) + " a " + f[1].slice(0, 5); }).join(" y ")
+          : "Cerrado";
+        return { nombre: nombre, horas: horas };
+      });
+    }
+
+    function aplicarDatos() {
+      const a = D.ajustes;
+      document.title = a.nombre + " | Reservá tu turno";
+      $("titulo").textContent = a.nombre;
+      $("frase").textContent = a.frase;
+      $("pieNombre").textContent = a.nombre;
+      $("wa").href = "https://wa.me/" + a.whatsapp;
+
+      const horas = $("horariosTexto");
+      horas.replaceChildren();
+      textoHorarios().forEach(function (g) {
+        const f = el("div", "hfila");
+        f.appendChild(el("span", "", g.nombre));
+        f.appendChild(el("span", "", g.horas));
+        horas.appendChild(f);
+      });
+
+      const cont = $("contactoBotones");
+      cont.replaceChildren();
       function enlace(texto, url) {
-        const a = document.createElement("a");
-        a.className = "btn-sec";
-        a.textContent = texto;
-        a.href = url;
-        a.target = "_blank";
-        a.rel = "noopener";
-        cont.appendChild(a);
+        const x = el("a", "btn-sec", texto);
+        x.href = url; x.target = "_blank"; x.rel = "noopener";
+        cont.appendChild(x);
       }
-      enlace("Escribinos por WhatsApp", "https://wa.me/" + CONFIG.whatsapp);
-      if (CONFIG.instagram) enlace("Seguinos en Instagram", CONFIG.instagram);
-      if (CONFIG.direccion) {
-        document.getElementById("filaDireccion").hidden = false;
-        document.getElementById("textoDireccion").textContent = CONFIG.direccion;
-        enlace("Cómo llegar", "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(CONFIG.direccion));
+      enlace("Escribinos por WhatsApp", "https://wa.me/" + a.whatsapp);
+      if (a.instagram) {
+        const ig = /^https?:\/\//i.test(a.instagram) ? a.instagram : "https://instagram.com/" + a.instagram.replace("@", "");
+        enlace("Seguinos en Instagram", ig);
       }
-      document.getElementById("wa").href = "https://wa.me/" + CONFIG.whatsapp;
-      if (CONFIG.politica) {
-        const p = document.getElementById("politica");
-        p.textContent = CONFIG.politica;
-        p.hidden = false;
+      if (a.direccion) {
+        $("filaDireccion").hidden = false;
+        $("textoDireccion").textContent = a.direccion;
+        enlace("Cómo llegar", "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(a.direccion));
       }
-      if (CONFIG.credito) {
-        const c = document.getElementById("credito");
-        c.textContent = CONFIG.credito;
-        c.hidden = false;
-      }
+      if (a.politica) { $("politica").textContent = a.politica; $("politica").hidden = false; }
+
+      $("firmaNombre").textContent = FIRMA.nombre;
+      $("firmaLink").href = "https://wa.me/" + FIRMA.whatsapp + "?text=" + encodeURIComponent("Hola! Vi la página de " + a.nombre + " y quiero una para mi negocio");
     }
 
     // ---------- Reservar ----------
+    const ERRORES = {
+      ocupado: "Ese horario se acaba de ocupar. Elegí otro, por favor.",
+      limite: "Ya tenés el máximo de turnos activos con ese teléfono. Cancelá uno o esperá a que pase.",
+      demasiados: "Hiciste muchos intentos seguidos. Probá de nuevo en un rato o escribinos por WhatsApp.",
+      telefono: "Revisá el teléfono: tiene que llevar el código de área, sin 0 ni 15.",
+      nombre: "Revisá tu nombre: entre 2 y 60 letras.",
+      fecha: "Esa fecha ya no está disponible. Recargá la página.",
+      pasado: "Ese horario ya pasó. Elegí otro.",
+      horario: "Ese horario no está disponible. Recargá la página y elegí otro.",
+      servicio: "Ese servicio ya no está disponible. Recargá la página.",
+      invalido: "No se pudo reservar. Probá de nuevo."
+    };
+
+    function copiar(texto, boton) {
+      const ok = function () { boton.textContent = "¡Link copiado!"; };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).then(ok, function () { window.prompt("Copiá este link:", texto); });
+      } else {
+        window.prompt("Copiá este link:", texto);
+      }
+    }
+
+    function linkCalendario(iso, hora, minutos, servicio, linkCancelar) {
+      const ini = aMin(hora);
+      const fin = Math.min(ini + minutos, 1439);
+      const f = iso.replace(/-/g, "");
+      const fecha = f + "T" + pad(Math.floor(ini / 60)) + pad(ini % 60) + "00/" + f + "T" + pad(Math.floor(fin / 60)) + pad(fin % 60) + "00";
+      return "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+        "&text=" + encodeURIComponent(servicio + " - " + D.ajustes.nombre) +
+        "&dates=" + fecha + "&ctz=America%2FArgentina%2FBuenos_Aires" +
+        "&details=" + encodeURIComponent("Para cancelar o ver tu turno: " + linkCancelar) +
+        "&location=" + encodeURIComponent(D.ajustes.direccion || "");
+    }
+
+    function mostrarExito(res, fecha, hora, nombre) {
+      const base = location.href.split("#")[0].split("?")[0];
+      const linkCancelar = base + "?turno=" + res.token;
+      const resumen = diaTexto(fecha) + " a las " + hora;
+      const textoWA = "Hola! Reservé un turno.\nServicio: " + res.servicio + "\nDía: " + resumen + "\nNombre: " + nombre;
+
+      const acciones = el("div", "acciones");
+      const wa = el("a", "btn-principal verde", "Avisar por WhatsApp");
+      wa.href = "https://wa.me/" + D.ajustes.whatsapp + "?text=" + encodeURIComponent(textoWA);
+      wa.style.marginBottom = "10px";
+      const cal = el("a", "btn-sec", "Agregar a mi calendario");
+      cal.href = linkCalendario(fechaISO(fecha), hora, res.minutos, res.servicio, linkCancelar);
+      cal.target = "_blank"; cal.rel = "noopener";
+      const cop = el("button", "btn-sec", "Copiar link para cancelar o ver mi turno");
+      cop.type = "button";
+      cop.onclick = function () { copiar(linkCancelar, cop); };
+      acciones.appendChild(wa); acciones.appendChild(cal); acciones.appendChild(cop);
+
+      const horas = D.ajustes.cancelacion_horas;
+      mostrarMensaje("ok",
+        el("strong", "", "¡Turno reservado!"),
+        el("div", "", resumen + " · " + res.servicio),
+        acciones,
+        el("p", "aviso", "Guardá el link: con él podés cancelar tu turno" + (horas > 0 ? " hasta " + horas + " h antes." : ".")));
+      $("mensaje").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
     async function reservar() {
-      const nombre = document.getElementById("nombre").value.trim();
-      const boton = document.getElementById("reservar");
-      if (!(sel.servicio && sel.dia && sel.hora && nombre)) return;
+      const nombre = $("nombre").value.trim();
+      const tel = soloDigitos($("telefono").value);
+      if (reservando || !(sel.servicio && sel.dia && sel.hora && nombre.length >= 2 && tel.length >= 8)) return;
 
-      const turno = {
-        fecha: fechaISO(sel.dia),
-        hora: sel.hora,
-        servicio: sel.servicio.nombre,
-        minutos: sel.servicio.minutos,
-        nombre: nombre
-      };
-      const textoWA = "Hola! Reservé un turno.\n" +
-        "Servicio: " + turno.servicio + "\n" +
-        "Día: " + diaTexto(sel.dia) + "\n" +
-        "Hora: " + turno.hora + "\n" +
-        "Nombre: " + nombre;
-
+      reservando = true;
+      const boton = $("reservar");
       boton.textContent = "Reservando...";
       boton.className = "btn-principal desactivado";
 
+      const fecha = sel.dia, hora = sel.hora;
       try {
-        const r = await fetch(SUPABASE_URL + "/rest/v1/turnos", {
-          method: "POST",
-          headers: {
-            "apikey": SUPABASE_KEY,
-            "Content-Type": "application/json",
-            "Prefer": "return=minimal"
-          },
-          body: JSON.stringify(turno)
+        const res = await rpc("reservar_turno", {
+          p_servicio_id: sel.servicio.id,
+          p_fecha: fechaISO(fecha),
+          p_hora: hora,
+          p_nombre: nombre,
+          p_telefono: tel,
+          p_trampa: $("contacto_extra").value
         });
-
-        if (r.ok) {
-          const link = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(textoWA);
-          mostrarMensaje("ok",
-            "<strong>¡Turno reservado!</strong><br>" + diaTexto(sel.dia) + " a las " + turno.hora +
-            "<br><a class='btn-principal' href='" + link + "'>Avisar por WhatsApp</a>");
+        if (res.ok) {
+          try { localStorage.setItem("turno_token", res.token); } catch (e) {}
+          mostrarExito(res, fecha, hora, nombre);
           sel.servicio = null; sel.dia = null; sel.hora = null;
-          document.getElementById("nombre").value = "";
-        } else if (r.status === 409) {
-          mostrarMensaje("error", "Ese horario se acaba de ocupar. Elegí otro, por favor.");
-          sel.hora = null;
+          $("nombre").value = ""; $("telefono").value = "";
         } else {
-          mostrarMensaje("error", "No se pudo reservar. Probá de nuevo en unos minutos.");
+          mostrarMensaje("error", document.createTextNode(ERRORES[res.error] || ERRORES.invalido));
+          if (res.error === "ocupado") sel.hora = null;
         }
       } catch (e) {
-        mostrarMensaje("error", "No hay conexión. Probá de nuevo.");
+        mostrarMensaje("error", document.createTextNode("No hay conexión. Probá de nuevo."));
       }
 
+      reservando = false;
       boton.textContent = "Confirmar reserva";
       await cargarOcupados();
       renderServicios(); renderDias(); renderHoras(); actualizar();
     }
 
-    document.getElementById("nombre").addEventListener("input", actualizar);
-    document.getElementById("reservar").addEventListener("click", reservar);
+    // ---------- Mi turno (ver y cancelar) ----------
+    function borrarToken() { try { localStorage.removeItem("turno_token"); } catch (e) {} }
+
+    async function cargarMiTurno(token, desdeLink, extra) {
+      const sec = $("miTurno"), caja = $("miTurnoCaja");
+      let t;
+      try { t = await rpc("ver_turno", { p_token: token }); } catch (e) { return; }
+      caja.replaceChildren();
+
+      if (!t.encontrado) {
+        if (!desdeLink) { borrarToken(); return; }
+        caja.appendChild(el("p", "mt-msg", "No encontramos ese turno. Revisá que el link esté completo o escribinos por WhatsApp."));
+        sec.hidden = false;
+        return;
+      }
+
+      const hora = t.hora.slice(0, 5);
+      const fecha = fechaDeISO(t.fecha);
+      const inicio = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), Math.floor(aMin(hora) / 60), aMin(hora) % 60);
+      const paso = inicio < new Date();
+      if (!desdeLink && (t.estado !== "activo" || paso)) { borrarToken(); return; }
+
+      caja.appendChild(el("div", "mt-hora", diaTexto(fecha) + " a las " + hora));
+      caja.appendChild(el("div", "mt-det", t.servicio + " · " + t.minutos + " min · a nombre de " + t.nombre));
+      if (extra) caja.appendChild(el("p", "mt-msg", extra));
+
+      if (t.estado !== "activo") {
+        caja.appendChild(el("p", "mt-msg", "Este turno está cancelado."));
+      } else if (paso) {
+        caja.appendChild(el("p", "mt-msg", "Este turno ya pasó."));
+      } else if (t.puede_cancelar) {
+        const b = el("button", "btn-peligro", "Cancelar mi turno");
+        b.type = "button";
+        b.onclick = function () { cancelarMiTurno(token); };
+        caja.appendChild(b);
+      } else {
+        caja.appendChild(el("p", "mt-msg", "Ya no se puede cancelar desde acá porque faltan menos de " + t.horas_aviso + " horas. Escribinos por WhatsApp y lo resolvemos."));
+        const w = el("a", "btn-sec", "Escribir por WhatsApp");
+        w.href = "https://wa.me/" + D.ajustes.whatsapp; w.target = "_blank"; w.rel = "noopener";
+        caja.appendChild(w);
+      }
+      sec.hidden = false;
+      if (desdeLink) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function cancelarMiTurno(token) {
+      if (!confirm("¿Querés cancelar tu turno?")) return;
+      try {
+        const r = await rpc("cancelar_turno", { p_token: token });
+        if (r.ok) {
+          borrarToken();
+          await cargarMiTurno(token, true, "Listo, tu turno fue cancelado.");
+          await cargarOcupados();
+          renderDias(); renderHoras();
+        } else if (r.error === "tarde") {
+          await cargarMiTurno(token, true, "Ya no se puede cancelar online. Escribinos por WhatsApp.");
+        } else {
+          await cargarMiTurno(token, true);
+        }
+      } catch (e) {
+        alert("No hay conexión. Probá de nuevo.");
+      }
+    }
+
+    // ---------- Inicio ----------
+    $("nombre").addEventListener("input", actualizar);
+    $("telefono").addEventListener("input", actualizar);
+    $("reservar").addEventListener("click", reservar);
 
     async function iniciar() {
+      try {
+        D = await rpc("datos_publicos", {});
+        if (!D || !D.ajustes) throw new Error("sin datos");
+      } catch (e) {
+        $("titulo").textContent = "No pudimos cargar la página";
+        $("frase").textContent = "Probá recargar en unos minutos.";
+        return;
+      }
+      aplicarDatos();
       renderListaServicios();
       renderGaleria();
       renderOpiniones();
-      renderContacto();
       await cargarOcupados();
       renderServicios(); renderDias(); renderHoras(); actualizar();
+
+      const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const desdeLink = new URLSearchParams(location.search).get("turno");
+      let token = desdeLink;
+      if (!token) { try { token = localStorage.getItem("turno_token"); } catch (e) {} }
+      if (token && uuid.test(token)) cargarMiTurno(token, !!desdeLink);
     }
     iniciar();
   </script>
