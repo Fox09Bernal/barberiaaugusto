@@ -85,6 +85,11 @@
     .edit { background: #1b1b1b; border: 1px solid var(--borde); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
     .edit .botones { display: flex; gap: 8px; margin-top: 6px; }
     .edit .botones button { flex: 1; }
+    .foto-edit { display: flex; align-items: center; gap: 12px; margin: 12px 0 4px; }
+    .foto-edit img, .foto-edit .sin-foto { width: 72px; height: 72px; border-radius: 10px; border: 1px solid var(--borde); flex-shrink: 0; }
+    .foto-edit img { object-fit: cover; }
+    .foto-edit .sin-foto { display: grid; place-items: center; font-size: 12px; color: var(--suave); background: #151515; text-align: center; }
+    .foto-edit .foto-botones { display: flex; flex-direction: column; gap: 8px; }
     .dia-edit { background: #1b1b1b; border: 1px solid var(--borde); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
     .dia-edit .cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 600; }
     .dia-edit .cab label.check { margin: 0; font-size: 14px; font-weight: 400; }
@@ -218,7 +223,7 @@
       <div id="vConfig" hidden>
         <div class="tarjeta">
           <h2>Servicios</h2>
-          <p class="nota">Los cambios se ven al instante en la página de clientes. Los turnos ya reservados conservan su nombre y duración.</p>
+          <p class="nota">Los cambios se ven al instante en la página de clientes. Los turnos ya reservados conservan su nombre y duración. Cada servicio puede tener su foto: tocá "Subir foto" (se achica sola para que cargue rápido).</p>
           <div id="cfgServicios"></div>
           <h3 style="margin-top:20px">Agregar servicio</h3>
           <div class="edit">
@@ -639,6 +644,94 @@
       } catch (e) { /* no pasa nada: se puede volver a marcar */ }
     }
 
+    // ---------- Fotos de los servicios (Supabase Storage) ----------
+    const BUCKET = "servicios";
+    const MAX_LADO = 1200;
+    const MAX_BYTES = 2 * 1024 * 1024;
+
+    function rutaDeFoto(url) {
+      const marca = "/storage/v1/object/public/" + BUCKET + "/";
+      const i = (url || "").indexOf(marca);
+      return i === -1 ? null : url.slice(i + marca.length);
+    }
+
+    async function borrarObjeto(url) {
+      const ruta = rutaDeFoto(url);
+      if (!ruta) return;
+      try { await api("/storage/v1/object/" + BUCKET + "/" + ruta, { method: "DELETE" }); } catch (e) { /* si no se borra, no pasa nada */ }
+    }
+
+    // Achica la foto (máx. 1200 px, JPG) para que cargue rápido y no ocupe lugar
+    function reducirImagen(file) {
+      return new Promise(function (resolve, reject) {
+        const url = URL.createObjectURL(file);
+        const limite = setTimeout(function () { URL.revokeObjectURL(url); reject(new Error("tiempo")); }, 10000);
+        const img = new Image();
+        img.onload = function () {
+          clearTimeout(limite);
+          try {
+            const escala = Math.min(1, MAX_LADO / Math.max(img.naturalWidth, img.naturalHeight));
+            const w = Math.round(img.naturalWidth * escala), h = Math.round(img.naturalHeight * escala);
+            const c = document.createElement("canvas");
+            c.width = w; c.height = h;
+            const ctx = c.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            c.toBlob(function (b) { URL.revokeObjectURL(url); if (b) resolve(b); else reject(new Error("convertir")); }, "image/jpeg", 0.82);
+          } catch (e) { URL.revokeObjectURL(url); reject(e); }
+        };
+        img.onerror = function () { clearTimeout(limite); URL.revokeObjectURL(url); reject(new Error("leer")); };
+        img.src = url;
+      });
+    }
+
+    async function subirFoto(s, file, boton) {
+      if (!/^image\//.test(file.type)) { aviso("error", "Elegí una imagen (JPG, PNG o WEBP)."); return; }
+      const textoOriginal = boton.textContent;
+      boton.disabled = true;
+      boton.textContent = "Subiendo...";
+      try {
+        let blob;
+        try { blob = await reducirImagen(file); }
+        catch (e) {
+          if (file.size <= MAX_BYTES && /^image\/(jpeg|png|webp)$/.test(file.type)) blob = file;
+          else throw new Error("imagen");
+        }
+        if (blob.size > MAX_BYTES) throw new Error("grande");
+        const ext = blob.type === "image/png" ? "png" : blob.type === "image/webp" ? "webp" : "jpg";
+        const ruta = s.id + "-" + Date.now() + "." + ext;
+        const r = await api("/storage/v1/object/" + BUCKET + "/" + ruta, { method: "POST", headers: { "Content-Type": blob.type }, body: blob });
+        if (!r.ok) throw new Error("subida");
+        const nueva = SUPABASE_URL + "/storage/v1/object/public/" + BUCKET + "/" + ruta;
+        const p = await api("/rest/v1/servicios?id=eq." + s.id, {
+          method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify({ foto_url: nueva })
+        });
+        if (!p.ok) throw new Error("guardar");
+        borrarObjeto(s.foto_url);
+        aviso("ok", "Foto subida. Ya se ve en la página de clientes.");
+        await cargarConfig();
+        return;
+      } catch (e) {
+        aviso("error", e.message === "grande" ? "La foto es muy pesada. Probá con otra." : "No se pudo subir la foto. Probá de nuevo.");
+      }
+      boton.disabled = false;
+      boton.textContent = textoOriginal;
+    }
+
+    async function quitarFoto(s) {
+      if (!confirm("¿Quitar la foto de \"" + s.nombre + "\"?")) return;
+      try {
+        const r = await api("/rest/v1/servicios?id=eq." + s.id, {
+          method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify({ foto_url: "" })
+        });
+        if (!r.ok) throw new Error();
+        borrarObjeto(s.foto_url);
+        aviso("ok", "Foto quitada.");
+        await cargarConfig();
+      } catch (e) { aviso("error", "No se pudo quitar la foto."); }
+    }
+
     // ---------- Configuración: servicios ----------
     function campo(etiqueta, input) {
       const d = el("div");
@@ -665,6 +758,30 @@
         fila.appendChild(campo("Duración (min)", minutos));
         caja.appendChild(fila);
         caja.appendChild(lab);
+
+        const bloque = el("div", "foto-edit");
+        if (s.foto_url && /^https:\/\//.test(s.foto_url)) {
+          const im = el("img"); im.src = s.foto_url; im.alt = s.nombre;
+          bloque.appendChild(im);
+        } else {
+          bloque.appendChild(el("div", "sin-foto", "Sin foto"));
+        }
+        const colFoto = el("div", "foto-botones");
+        const archivo = el("input"); archivo.type = "file"; archivo.accept = "image/*"; archivo.hidden = true;
+        const subir = el("button", "chico", s.foto_url ? "Cambiar foto" : "Subir foto");
+        subir.type = "button";
+        subir.onclick = function () { archivo.click(); };
+        archivo.onchange = function () { if (archivo.files && archivo.files[0]) subirFoto(s, archivo.files[0], subir); };
+        colFoto.appendChild(subir);
+        if (s.foto_url) {
+          const quitar = el("button", "chico", "Quitar foto");
+          quitar.type = "button";
+          quitar.onclick = function () { quitarFoto(s); };
+          colFoto.appendChild(quitar);
+        }
+        bloque.appendChild(colFoto);
+        bloque.appendChild(archivo);
+        caja.appendChild(bloque);
 
         const botones = el("div", "botones");
         const guardar = el("button", "", "Guardar");
@@ -705,6 +822,7 @@
       try {
         const r = await api("/rest/v1/servicios?id=eq." + s.id, { method: "DELETE", headers: { "Prefer": "return=minimal" } });
         if (!r.ok) throw new Error();
+        borrarObjeto(s.foto_url);
         aviso("ok", "Servicio eliminado.");
         await cargarConfig();
       } catch (e) { aviso("error", "No se pudo eliminar."); }

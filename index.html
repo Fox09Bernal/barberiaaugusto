@@ -63,9 +63,17 @@
     .servicio .duracion { color: var(--suave); font-size: 14px; }
     .servicio .precio { font-family: 'Oswald', Impact, sans-serif; font-size: 24px; color: var(--acento); letter-spacing: 1px; }
 
+    .servicio-izq { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .servicio-foto { width: 64px; height: 64px; object-fit: cover; border-radius: 10px; border: 1px solid var(--borde); cursor: zoom-in; flex-shrink: 0; }
+
+    /* Visor de fotos */
+    .visor { position: fixed; inset: 0; background: rgba(0,0,0,.93); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px; z-index: 30; cursor: zoom-out; }
+    .visor img { max-width: 100%; max-height: 82vh; border-radius: 12px; }
+    .visor p { margin: 0; color: var(--suave); font-size: 14px; }
+
     /* Galería */
     .galeria { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .galeria img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; display: block; border: 1px solid var(--borde); }
+    .galeria img { cursor: zoom-in; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; display: block; border: 1px solid var(--borde); }
 
     /* Reservas */
     .paso { display: flex; align-items: center; gap: 10px; margin: 26px 0 12px; font-weight: 600; }
@@ -211,6 +219,11 @@
 
   <a id="wa" class="flotante" target="_blank" rel="noopener">WhatsApp</a>
 
+  <div id="visor" class="visor" hidden>
+    <img alt="">
+    <p id="visorTexto"></p>
+  </div>
+
   <script>
     // ===== CONEXIÓN CON LA BASE DE DATOS =====
     const SUPABASE_URL = "https://buvcgwjmmgzvhrnebleb.supabase.co";
@@ -321,15 +334,34 @@
       return b;
     }
 
+    function abrirVisor(src, texto) {
+      $("visor").querySelector("img").src = src;
+      $("visor").querySelector("img").alt = texto || "";
+      $("visorTexto").textContent = texto || "";
+      $("visor").hidden = false;
+    }
+    $("visor").addEventListener("click", function () { $("visor").hidden = true; });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("visor").hidden = true; });
+
     function renderListaServicios() {
       const cont = $("listaServicios");
       cont.replaceChildren();
       if (!D.servicios.length) { cont.appendChild(el("p", "aviso", "Pronto vamos a publicar los servicios.")); return; }
       D.servicios.forEach(function (s) {
         const fila = el("div", "servicio");
-        const izq = el("div");
-        izq.appendChild(el("div", "nombre", s.nombre));
-        izq.appendChild(el("div", "duracion", s.minutos + " min"));
+        const izq = el("div", "servicio-izq");
+        if (s.foto_url && /^https:\/\//.test(s.foto_url)) {
+          const img = el("img", "servicio-foto");
+          img.src = s.foto_url;
+          img.alt = s.nombre;
+          img.loading = "lazy";
+          img.onclick = function () { abrirVisor(s.foto_url, s.nombre); };
+          izq.appendChild(img);
+        }
+        const txt = el("div");
+        txt.appendChild(el("div", "nombre", s.nombre));
+        txt.appendChild(el("div", "duracion", s.minutos + " min"));
+        izq.appendChild(txt);
         fila.appendChild(izq);
         fila.appendChild(el("div", "precio", plata(s.precio)));
         cont.appendChild(fila);
@@ -342,7 +374,11 @@
         const img = new Image();
         img.alt = "Trabajo de " + D.ajustes.nombre;
         img.loading = "lazy";
-        img.onload = function () { cont.appendChild(img); $("seccionGaleria").hidden = false; };
+        img.onload = function () {
+          img.onclick = function () { abrirVisor(archivo, ""); };
+          cont.appendChild(img);
+          $("seccionGaleria").hidden = false;
+        };
         img.src = archivo;
       });
     }
