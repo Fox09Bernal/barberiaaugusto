@@ -51,7 +51,7 @@
 
     /* Pestañas */
     .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
-    .tab { flex: 1; padding: 11px 6px; font-size: 14px; }
+    .tab { flex: 1; padding: 11px 2px; font-size: 13px; }
     .tab.activo { background: var(--acento); color: #111; border-color: var(--acento); }
 
     /* Semana */
@@ -73,6 +73,12 @@
     .turno { background: #1b1b1b; border: 1px solid var(--borde); border-left: 4px solid var(--acento); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .turno.bloqueo { border-left-color: #777; background: #202018; }
     .turno.manual { border-left-color: var(--verde); }
+    .turno.espera { border-left-color: #d98b2b; border-style: dashed; border-left-style: solid; }
+    .tag { display: inline-block; margin-top: 4px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .tag.pagado { background: #12301f; color: #7fe3a8; }
+    .tag.espera { background: #3a2a10; color: #f0b45c; }
+    .tag.devolver { background: #3a1616; color: #ff9d9d; }
+    .total-pagos { color: var(--acento); font-weight: 600; }
     .turno .hora { font-family: 'Oswald', Impact, sans-serif; font-size: 20px; letter-spacing: 1px; }
     .turno .detalle { color: var(--suave); font-size: 14px; word-break: break-word; }
     .turno .acciones { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
@@ -134,8 +140,9 @@
 
       <div class="tabs">
         <button class="tab activo" data-vista="vAgenda">Agenda</button>
-        <button class="tab" data-vista="vRecord">Recordatorios</button>
-        <button class="tab" data-vista="vConfig">Configuración</button>
+        <button class="tab" data-vista="vRecord">Recordar</button>
+        <button class="tab" data-vista="vPagos">Pagos</button>
+        <button class="tab" data-vista="vConfig">Config</button>
       </div>
 
       <!-- AGENDA -->
@@ -219,6 +226,20 @@
         </div>
       </div>
 
+      <!-- PAGOS -->
+      <div id="vPagos" hidden>
+        <div class="tarjeta">
+          <h2>Devoluciones pendientes</h2>
+          <p class="nota">Son clientes que pagaron pero el turno no se realiza (cancelaron a tiempo, o pagaron cuando el horario ya no estaba). Devolvé el dinero desde tu cuenta de Mercado Pago (buscá el pago y elegí devolver; los pasos pueden variar) y después tocá "Marcar devuelto".</p>
+          <div id="pDevoluciones"></div>
+        </div>
+        <div class="tarjeta">
+          <h2>Señas cobradas</h2>
+          <div class="titulo-dia"><span>Próximos turnos</span><span id="pTotal" class="total"></span></div>
+          <div id="pCobradas"></div>
+        </div>
+      </div>
+
       <!-- CONFIGURACIÓN -->
       <div id="vConfig" hidden>
         <div class="tarjeta">
@@ -245,6 +266,13 @@
         </div>
 
         <div class="tarjeta">
+          <h2>Pagos con Mercado Pago</h2>
+          <p class="nota">Activalo solo cuando las funciones de Mercado Pago estén instaladas y probadas. Si lo activás sin eso, los clientes reservan pero no pueden pagar.</p>
+          <div id="cfgPagos"></div>
+          <button id="guardarPagos" class="principal">Guardar pagos</button>
+        </div>
+
+        <div class="tarjeta">
           <h2>Datos del negocio</h2>
           <div id="cfgAjustes"></div>
           <button id="guardarAjustes" class="principal">Guardar datos</button>
@@ -266,7 +294,7 @@
     const SUPABASE_KEY = "sb_publishable_LVw0YJW6ujE4ST69gSrpwQ_C9do6GOT";
 
     // ===== TU FIRMA (editá acá: tu nombre y tu WhatsApp con 549 + código de área + número) =====
-    const FIRMA = { nombre: "Diego", whatsapp: "5493417193221" };
+    const FIRMA = { nombre: "Fox & Co. Digital", whatsapp: "5493417193221" };
 
     const $ = id => document.getElementById(id);
     const pad = n => String(n).padStart(2, "0");
@@ -277,6 +305,8 @@
     const nombresCortos = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
     const nombresDias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     const ORDEN_DIAS = [1, 2, 3, 4, 5, 6, 0];
+    const plata = n => "$" + Number(n).toLocaleString("es-AR");
+    const horaLocal = iso => new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
 
     function el(tag, clase, texto) {
       const e = document.createElement(tag);
@@ -390,9 +420,10 @@
 
     // ---------- Pestañas ----------
     function irA(vista) {
-      ["vAgenda", "vRecord", "vConfig"].forEach(function (v) { $(v).hidden = v !== vista; });
+      ["vAgenda", "vRecord", "vPagos", "vConfig"].forEach(function (v) { $(v).hidden = v !== vista; });
       document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("activo", t.dataset.vista === vista); });
       if (vista === "vRecord") cargarRecord();
+      if (vista === "vPagos") cargarPagos();
       if (vista === "vAgenda") cargar();
     }
 
@@ -433,6 +464,7 @@
       renderCfgServicios();
       renderCfgHorarios();
       renderCfgAjustes();
+      renderCfgPagos();
     }
 
     function renderSelectorServicios() {
@@ -453,7 +485,7 @@
       if (!fecha) { cargando = false; return; }
       $("fechaLarga").textContent = fechaLarga(fecha);
       try {
-        const r = await api("/rest/v1/turnos?fecha=eq." + fecha + "&estado=eq.activo&order=hora.asc&select=id,hora,servicio,minutos,nombre,telefono");
+        const r = await api("/rest/v1/turnos?fecha=eq." + fecha + "&estado=in.(activo,pendiente_pago)&order=hora.asc&select=id,hora,servicio,minutos,nombre,telefono,estado,pago_estado,pago_monto,vence_en,pago_nota");
         if (!r.ok) throw new Error("Error " + r.status);
         dibujarLista(await r.json(), fecha);
       } catch (e) {
@@ -497,8 +529,11 @@
     function dibujarLista(turnos, fecha) {
       const lista = $("lista");
       lista.replaceChildren();
-      const reales = turnos.filter(function (t) { return t.servicio !== "BLOQUEO"; });
-      $("total").textContent = reales.length === 1 ? "1 turno" : reales.length + " turnos";
+      // Las reservas que esperaban pago y ya vencieron no se muestran
+      turnos = turnos.filter(function (t) { return !(t.estado === "pendiente_pago" && t.vence_en && Date.parse(t.vence_en) < Date.now()); });
+      const reales = turnos.filter(function (t) { return t.servicio !== "BLOQUEO" && t.estado === "activo"; });
+      const esperando = turnos.filter(function (t) { return t.estado === "pendiente_pago"; }).length;
+      $("total").textContent = (reales.length === 1 ? "1 turno" : reales.length + " turnos") + (esperando ? " · " + esperando + " esperando pago" : "");
       if (turnos.length === 0) { lista.appendChild(el("div", "vacio", "No hay turnos ni bloqueos para este día.")); return; }
 
       turnos.forEach(function (t) {
@@ -507,11 +542,15 @@
         const esManual = t.nombre.indexOf("★") === 0;
         const nombre = t.nombre.replace("★ ", "");
 
-        const caja = el("div", "turno" + (esBloqueo ? " bloqueo" : "") + (esManual ? " manual" : ""));
+        const espera = t.estado === "pendiente_pago";
+        const caja = el("div", "turno" + (esBloqueo ? " bloqueo" : "") + (esManual ? " manual" : "") + (espera ? " espera" : ""));
         const info = el("div");
         info.appendChild(el("div", "hora", (esBloqueo && t.minutos >= 1439) ? "Todo el día" : aTexto(inicio) + " a " + aTexto(inicio + t.minutos)));
         info.appendChild(el("div", "detalle", esBloqueo ? "Horario bloqueado" : nombre + " · " + t.servicio + (esManual ? " (cargado a mano)" : "")));
         if (!esBloqueo && t.telefono) info.appendChild(el("div", "detalle", "WhatsApp: " + t.telefono));
+        if (espera) info.appendChild(el("span", "tag espera", "⏳ Esperando pago de " + plata(t.pago_monto) + " · vence " + horaLocal(t.vence_en)));
+        else if (t.pago_estado === "pagado") info.appendChild(el("span", "tag pagado", "✓ Seña pagada " + plata(t.pago_monto)));
+        else if (t.pago_estado === "reembolsar") info.appendChild(el("span", "tag devolver", "⚠ Devolver " + plata(t.pago_monto)));
 
         const acc = el("div", "acciones");
         if (!esBloqueo && t.telefono) {
@@ -533,12 +572,17 @@
 
     async function cancelar(t, esBloqueo, nombre) {
       if (!confirm(esBloqueo ? "¿Quitar este bloqueo?" : "¿Cancelar el turno de " + nombre + "?")) return;
+      const cambios = { estado: "cancelado" };
+      if (t.pago_estado === "pagado") cambios.pago_estado = "reembolsar";
+      else if (t.pago_estado === "pendiente") cambios.pago_estado = "sin_pago";
       try {
         const r = await api("/rest/v1/turnos?id=eq." + t.id, {
-          method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify({ estado: "cancelado" })
+          method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify(cambios)
         });
         if (!r.ok) throw new Error();
-        aviso("ok", esBloqueo ? "Bloqueo quitado." : "Turno cancelado. Avisale al cliente con el botón de WhatsApp.");
+        aviso("ok", esBloqueo ? "Bloqueo quitado." :
+          t.pago_estado === "pagado" ? "Turno cancelado. Tenés que devolver la seña desde Mercado Pago (mirá la pestaña Pagos)." :
+          "Turno cancelado. Avisale al cliente con el botón de WhatsApp.");
         cargar();
       } catch (e) { aviso("error", "No se pudo completar. Probá de nuevo."); }
     }
@@ -730,6 +774,130 @@
         aviso("ok", "Foto quitada.");
         await cargarConfig();
       } catch (e) { aviso("error", "No se pudo quitar la foto."); }
+    }
+
+    // ---------- Pagos ----------
+    async function cargarPagos() {
+      if (!token) return;
+      const hoy = fechaISO(new Date());
+      try {
+        const res = await Promise.all([
+          api("/rest/v1/turnos?pago_estado=eq.reembolsar&order=fecha.asc&select=id,fecha,hora,servicio,nombre,telefono,pago_monto,pago_nota"),
+          api("/rest/v1/turnos?pago_estado=eq.pagado&estado=eq.activo&fecha=gte." + hoy + "&order=fecha.asc,hora.asc&select=id,fecha,hora,servicio,nombre,telefono,pago_monto")
+        ]);
+        if (!res[0].ok || !res[1].ok) throw new Error();
+        dibujarPagos(await res[0].json(), await res[1].json());
+      } catch (e) {
+        $("pDevoluciones").replaceChildren(el("div", "vacio", "No se pudieron cargar los pagos. ¿Ejecutaste la Parte 7 del SQL?"));
+        $("pCobradas").replaceChildren();
+      }
+    }
+
+    function filaPago(t, conBoton) {
+      const caja = el("div", "turno" + (conBoton ? " espera" : ""));
+      const info = el("div");
+      info.appendChild(el("div", "hora", fechaLarga(t.fecha) + " · " + t.hora.slice(0, 5)));
+      info.appendChild(el("div", "detalle", t.nombre.replace("★ ", "") + " · " + t.servicio));
+      info.appendChild(el("span", "tag " + (conBoton ? "devolver" : "pagado"), plata(t.pago_monto)));
+      if (t.pago_nota) info.appendChild(el("div", "detalle", t.pago_nota));
+      caja.appendChild(info);
+      const acc = el("div", "acciones");
+      if (t.telefono) {
+        const wa = el("a", "btn-wa", "WhatsApp");
+        const msg = conBoton
+          ? "Hola " + t.nombre.replace("★ ", "") + "! Te escribimos de " + nombreNegocio() + " para devolverte la seña de " + plata(t.pago_monto) + " de tu turno del " + fechaLarga(t.fecha) + "."
+          : "Hola " + t.nombre.replace("★ ", "") + "! Te escribimos de " + nombreNegocio() + " por tu turno del " + fechaLarga(t.fecha) + " a las " + t.hora.slice(0, 5) + ".";
+        wa.href = "https://wa.me/" + waNumero(t.telefono) + "?text=" + encodeURIComponent(msg);
+        wa.target = "_blank"; wa.rel = "noopener";
+        acc.appendChild(wa);
+      }
+      if (conBoton) {
+        const b = el("button", "chico", "Marcar devuelto");
+        b.onclick = function () { marcarDevuelto(t); };
+        acc.appendChild(b);
+      }
+      caja.appendChild(acc);
+      return caja;
+    }
+
+    function dibujarPagos(devoluciones, cobradas) {
+      const d = $("pDevoluciones"), c = $("pCobradas");
+      d.replaceChildren(); c.replaceChildren();
+      if (!devoluciones.length) d.appendChild(el("div", "vacio", "No hay devoluciones pendientes."));
+      devoluciones.forEach(function (t) { d.appendChild(filaPago(t, true)); });
+      if (!cobradas.length) c.appendChild(el("div", "vacio", "Todavía no hay señas cobradas para turnos futuros."));
+      cobradas.forEach(function (t) { c.appendChild(filaPago(t, false)); });
+      const suma = cobradas.reduce(function (a, t) { return a + Number(t.pago_monto); }, 0);
+      $("pTotal").textContent = cobradas.length ? plata(suma) + " en " + cobradas.length + (cobradas.length === 1 ? " turno" : " turnos") : "";
+    }
+
+    async function marcarDevuelto(t) {
+      if (!confirm("¿Ya devolviste " + plata(t.pago_monto) + " a " + t.nombre.replace("★ ", "") + " desde Mercado Pago?")) return;
+      try {
+        const r = await api("/rest/v1/turnos?id=eq." + t.id, {
+          method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify({ pago_estado: "reembolsado" })
+        });
+        if (!r.ok) throw new Error();
+        aviso("ok", "Listo, marcado como devuelto.");
+        cargarPagos();
+      } catch (e) { aviso("error", "No se pudo marcar. Probá de nuevo."); }
+    }
+
+    // ---------- Configuración: pagos ----------
+    let refsPagos = {};
+
+    function renderCfgPagos() {
+      const a = S.ajustes;
+      const cont = $("cfgPagos");
+      cont.replaceChildren();
+      refsPagos = {};
+      if (a.pagos_activos === undefined) {
+        cont.appendChild(el("div", "vacio", "Falta ejecutar la Parte 7 del SQL en Supabase."));
+        $("guardarPagos").hidden = true;
+        return;
+      }
+      $("guardarPagos").hidden = false;
+
+      const activo = el("input"); activo.type = "checkbox"; activo.checked = !!a.pagos_activos;
+      const lab = el("label", "check"); lab.appendChild(activo); lab.appendChild(document.createTextNode("Cobrar seña al reservar"));
+      cont.appendChild(lab);
+      refsPagos.pagos_activos = activo;
+
+      const pct = el("input"); pct.type = "number"; pct.min = 10; pct.max = 100; pct.value = a.pago_porcentaje;
+      refsPagos.pago_porcentaje = pct;
+      const d1 = campo("Porcentaje del precio que se cobra", pct);
+      d1.appendChild(el("p", "nota", "30 = una seña del 30%. 100 = se cobra el total. Ejemplo: en un servicio de $8.000, con 30% la seña es $2.400."));
+      cont.appendChild(d1);
+
+      const ret = el("input"); ret.type = "number"; ret.min = 5; ret.max = 60; ret.value = a.pago_retencion_min;
+      refsPagos.pago_retencion_min = ret;
+      const d2 = campo("Minutos que se retiene el horario para pagar", ret);
+      d2.appendChild(el("p", "nota", "Si el cliente no paga en ese tiempo, el horario se libera solo."));
+      cont.appendChild(d2);
+
+      const pol = el("textarea"); pol.value = a.pago_politica || "";
+      refsPagos.pago_politica = pol;
+      const d3 = campo("Política de devolución de la seña", pol);
+      d3.appendChild(el("p", "nota", "Se muestra al cliente cuando cancela un turno pagado. Revisala y ajustala a lo que decida el negocio."));
+      cont.appendChild(d3);
+    }
+
+    async function guardarPagos() {
+      const activo = refsPagos.pagos_activos.checked;
+      const pct = Number(refsPagos.pago_porcentaje.value);
+      const ret = Number(refsPagos.pago_retencion_min.value);
+      if (!(pct >= 10 && pct <= 100)) { aviso("error", "El porcentaje tiene que estar entre 10 y 100."); return; }
+      if (!(ret >= 5 && ret <= 60)) { aviso("error", "La retención tiene que estar entre 5 y 60 minutos."); return; }
+      if (activo && !S.ajustes.pagos_activos && !confirm("¿Activar los pagos? A partir de ahora los clientes tendrán que pagar para confirmar. Hacelo solo si Mercado Pago ya está instalado y probado.")) return;
+      try {
+        const r = await api("/rest/v1/ajustes?id=eq.1", {
+          method: "PATCH", headers: { "Prefer": "return=minimal" },
+          body: JSON.stringify({ pagos_activos: activo, pago_porcentaje: pct, pago_retencion_min: ret, pago_politica: refsPagos.pago_politica.value.trim() })
+        });
+        if (!r.ok) throw new Error();
+        aviso("ok", activo ? "Pagos guardados y ACTIVADOS." : "Pagos guardados (apagados).");
+        await cargarConfig();
+      } catch (e) { aviso("error", "No se pudieron guardar los pagos."); }
     }
 
     // ---------- Configuración: servicios ----------
@@ -1005,6 +1173,7 @@
     $("nsAgregar").onclick = agregarServicio;
     $("guardarHorarios").onclick = guardarHorarios;
     $("guardarAjustes").onclick = guardarAjustes;
+    $("guardarPagos").onclick = guardarPagos;
 
     $("firmaNombre").textContent = FIRMA.nombre;
     $("firmaLink").href = "https://wa.me/" + FIRMA.whatsapp + "?text=" + encodeURIComponent("Hola! Necesito ayuda con el panel");

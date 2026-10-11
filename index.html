@@ -183,6 +183,7 @@
         <p class="aviso separado">Con código de área, sin 0 ni 15. Lo usamos solo para avisarte sobre tu turno.</p>
         <input id="contacto_extra" type="text" class="trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
 
+        <p id="infoPago" class="aviso separado" hidden></p>
         <button id="reservar" class="btn-principal desactivado" type="button">Confirmar reserva</button>
         <div id="mensaje"></div>
         <p id="politica" class="politica" hidden></p>
@@ -230,7 +231,7 @@
     const SUPABASE_KEY = "sb_publishable_LVw0YJW6ujE4ST69gSrpwQ_C9do6GOT";
 
     // ===== TU FIRMA (editá acá: tu nombre y tu WhatsApp con 549 + código de área + número) =====
-    const FIRMA = { nombre: "Diego", whatsapp: "5493417193221" };
+    const FIRMA = { nombre: "Fox & Co. Digital", whatsapp: "5493417193221" };
 
     // ===== CONTENIDO QUE VA EN EL CÓDIGO (fotos y opiniones reales) =====
     const EXTRA = {
@@ -435,11 +436,25 @@
 
     function soloDigitos(t) { return String(t || "").replace(/\D/g, ""); }
 
+    function pagosActivos() { return !!(D.ajustes && D.ajustes.pagos_activos); }
+    function montoSena(s) { return Math.ceil(s.precio * D.ajustes.pago_porcentaje / 100); }
+    function textoBoton() { return pagosActivos() ? "Reservar y pagar seña" : "Confirmar reserva"; }
+
     function actualizar() {
       const nombre = $("nombre").value.trim();
       const tel = soloDigitos($("telefono").value);
       const listo = sel.servicio && sel.dia && sel.hora && nombre.length >= 2 && tel.length >= 8 && !reservando;
       $("reservar").className = listo ? "btn-principal" : "btn-principal desactivado";
+      if (!reservando) $("reservar").textContent = textoBoton();
+      const info = $("infoPago");
+      if (pagosActivos() && sel.servicio) {
+        const total = D.ajustes.pago_porcentaje >= 100;
+        info.textContent = (total ? "Se paga el total: " : "Para confirmar el turno se paga una seña de ") + plata(montoSena(sel.servicio)) +
+          " con Mercado Pago. Tu horario queda reservado " + D.ajustes.pago_retencion_min + " minutos para que puedas pagar.";
+        info.hidden = false;
+      } else {
+        info.hidden = true;
+      }
     }
 
     function textoHorarios() {
@@ -563,6 +578,23 @@
       $("mensaje").scrollIntoView({ behavior: "smooth", block: "center" });
     }
 
+    async function irAPagar(token) {
+      mostrarMensaje("ok", document.createTextNode("Tu horario está reservado. Te llevamos a Mercado Pago para pagar la seña..."));
+      try {
+        const r = await fetch(SUPABASE_URL + "/functions/v1/crear-pago", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+          body: JSON.stringify({ token: token })
+        });
+        const datos = await r.json();
+        if (!r.ok || !datos.url || !/^https:\/\//.test(datos.url)) throw new Error("pago");
+        window.location.href = datos.url;
+      } catch (e) {
+        mostrarMensaje("error", document.createTextNode("No pudimos abrir Mercado Pago. Tu horario sigue reservado unos minutos: tocá \"Pagar seña\" abajo para reintentar."));
+        await cargarMiTurno(token, true);
+      }
+    }
+
     async function reservar() {
       const nombre = $("nombre").value.trim();
       const tel = soloDigitos($("telefono").value);
@@ -585,9 +617,13 @@
         });
         if (res.ok) {
           try { localStorage.setItem("turno_token", res.token); } catch (e) {}
-          mostrarExito(res, fecha, hora, nombre);
           sel.servicio = null; sel.dia = null; sel.hora = null;
           $("nombre").value = ""; $("telefono").value = "";
+          if (res.requiere_pago) {
+            irAPagar(res.token);
+          } else {
+            mostrarExito(res, fecha, hora, nombre);
+          }
         } else {
           mostrarMensaje("error", document.createTextNode(ERRORES[res.error] || ERRORES.invalido));
           if (res.error === "ocupado") sel.hora = null;
@@ -597,13 +633,15 @@
       }
 
       reservando = false;
-      boton.textContent = "Confirmar reserva";
+      boton.textContent = textoBoton();
       await cargarOcupados();
       renderServicios(); renderDias(); renderHoras(); actualizar();
     }
 
     // ---------- Mi turno (ver y cancelar) ----------
     function borrarToken() { try { localStorage.removeItem("turno_token"); } catch (e) {} }
+
+    let sondeos = 0;
 
     async function cargarMiTurno(token, desdeLink, extra) {
       const sec = $("miTurno"), caja = $("miTurnoCaja");
@@ -622,26 +660,58 @@
       const fecha = fechaDeISO(t.fecha);
       const inicio = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate(), Math.floor(aMin(hora) / 60), aMin(hora) % 60);
       const paso = inicio < new Date();
-      if (!desdeLink && (t.estado !== "activo" || paso)) { borrarToken(); return; }
+      const pendiente = t.estado === "pendiente_pago";
+      if (!desdeLink && ((t.estado !== "activo" && !pendiente) || paso)) { borrarToken(); return; }
 
       caja.appendChild(el("div", "mt-hora", diaTexto(fecha) + " a las " + hora));
       caja.appendChild(el("div", "mt-det", t.servicio + " · " + t.minutos + " min · a nombre de " + t.nombre));
       if (extra) caja.appendChild(el("p", "mt-msg", extra));
 
-      if (t.estado !== "activo") {
+      const retorno = new URLSearchParams(location.search).get("pago");
+      if (retorno === "fallo" && pendiente) caja.appendChild(el("p", "mt-msg", "El pago no se completó. Podés intentarlo de nuevo mientras el horario siga reservado."));
+
+      if (pendiente) {
+        if (sondeos > 0 && (retorno === "ok" || retorno === "pendiente")) {
+          // Volvió de Mercado Pago: esperamos unos segundos a que llegue la confirmación
+          sondeos--;
+          caja.appendChild(el("p", "mt-msg", "Estamos confirmando tu pago, un momento..."));
+          setTimeout(function () { cargarMiTurno(token, desdeLink, extra); }, 3000);
+        } else {
+          caja.appendChild(el("p", "mt-msg", "Tu horario está reservado hasta las " + t.vence_hora + ". Pagá la seña de " + plata(t.pago_monto) + " para confirmarlo."));
+          const pagar = el("button", "btn-principal", "Pagar seña");
+          pagar.type = "button";
+          pagar.style.marginBottom = "10px";
+          pagar.onclick = function () { pagar.disabled = true; irAPagar(token); };
+          caja.appendChild(pagar);
+          const b = el("button", "btn-peligro", "Cancelar reserva");
+          b.type = "button";
+          b.onclick = function () { cancelarMiTurno(token); };
+          caja.appendChild(b);
+        }
+      } else if (t.estado === "expirado") {
+        caja.appendChild(el("p", "mt-msg", "El tiempo para pagar venció y el horario se liberó. Podés reservar de nuevo cuando quieras."));
+      } else if (t.estado !== "activo") {
         caja.appendChild(el("p", "mt-msg", "Este turno está cancelado."));
       } else if (paso) {
         caja.appendChild(el("p", "mt-msg", "Este turno ya pasó."));
-      } else if (t.puede_cancelar) {
-        const b = el("button", "btn-peligro", "Cancelar mi turno");
-        b.type = "button";
-        b.onclick = function () { cancelarMiTurno(token); };
-        caja.appendChild(b);
       } else {
-        caja.appendChild(el("p", "mt-msg", "Ya no se puede cancelar desde acá porque faltan menos de " + t.horas_aviso + " horas. Escribinos por WhatsApp y lo resolvemos."));
-        const w = el("a", "btn-sec", "Escribir por WhatsApp");
-        w.href = "https://wa.me/" + D.ajustes.whatsapp; w.target = "_blank"; w.rel = "noopener";
-        caja.appendChild(w);
+        if (t.pago_estado === "pagado") caja.appendChild(el("p", "mt-msg", "✓ Seña pagada (" + plata(t.pago_monto) + "). Tu turno está confirmado."));
+        const cal = el("a", "btn-sec", "Agregar a mi calendario");
+        cal.href = linkCalendario(t.fecha, hora, t.minutos, t.servicio, location.href.split("#")[0].split("?")[0] + "?turno=" + token);
+        cal.target = "_blank"; cal.rel = "noopener";
+        caja.appendChild(cal);
+        if (t.puede_cancelar) {
+          const b = el("button", "btn-peligro", "Cancelar mi turno");
+          b.type = "button";
+          b.onclick = function () { cancelarMiTurno(token); };
+          caja.appendChild(b);
+          if (t.pago_estado === "pagado" && D.ajustes.pago_politica) caja.appendChild(el("p", "aviso", D.ajustes.pago_politica));
+        } else {
+          caja.appendChild(el("p", "mt-msg", "Ya no se puede cancelar desde acá porque faltan menos de " + t.horas_aviso + " horas. Escribinos por WhatsApp y lo resolvemos."));
+          const w = el("a", "btn-sec", "Escribir por WhatsApp");
+          w.href = "https://wa.me/" + D.ajustes.whatsapp; w.target = "_blank"; w.rel = "noopener";
+          caja.appendChild(w);
+        }
       }
       sec.hidden = false;
       if (desdeLink) sec.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -653,7 +723,7 @@
         const r = await rpc("cancelar_turno", { p_token: token });
         if (r.ok) {
           borrarToken();
-          await cargarMiTurno(token, true, "Listo, tu turno fue cancelado.");
+          await cargarMiTurno(token, true, r.reembolso ? "Listo, tu turno fue cancelado. La barbería se va a comunicar con vos para devolverte la seña." : "Listo, tu turno fue cancelado.");
           await cargarOcupados();
           renderDias(); renderHoras();
         } else if (r.error === "tarde") {
@@ -691,6 +761,8 @@
       const desdeLink = new URLSearchParams(location.search).get("turno");
       let token = desdeLink;
       if (!token) { try { token = localStorage.getItem("turno_token"); } catch (e) {} }
+      const vuelveDePago = ["ok", "pendiente", "fallo"].indexOf(new URLSearchParams(location.search).get("pago")) !== -1;
+      sondeos = vuelveDePago ? 10 : 0;
       if (token && uuid.test(token)) cargarMiTurno(token, !!desdeLink);
     }
     iniciar();
