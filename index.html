@@ -231,7 +231,7 @@
     const SUPABASE_KEY = "sb_publishable_LVw0YJW6ujE4ST69gSrpwQ_C9do6GOT";
 
     // ===== TU FIRMA (editá acá: tu nombre y tu WhatsApp con 549 + código de área + número) =====
-    const FIRMA = { nombre: "Fox & Co. Digital", whatsapp: "5493417193221" };
+    const FIRMA = { nombre: "Fox & Co, Digital", whatsapp: "5493417193221" };
 
     // ===== CONTENIDO QUE VA EN EL CÓDIGO (fotos y opiniones reales) =====
     const EXTRA = {
@@ -642,11 +642,41 @@
     function borrarToken() { try { localStorage.removeItem("turno_token"); } catch (e) {} }
 
     let sondeos = 0;
+    let verificaciones = 0;
+    let ultimoResultado = "";
+
+    // Al volver de Mercado Pago, la dirección trae el número del pago (payment_id / collection_id)
+    function idPagoDeLaUrl() {
+      const q = new URLSearchParams(location.search);
+      const id = q.get("payment_id") || q.get("collection_id") || "";
+      return /^\d{5,20}$/.test(id) ? id : "";
+    }
+
+    // Le pide al servidor que consulte ese pago a Mercado Pago y, si está aprobado, confirme el turno.
+    // Así el turno se confirma al instante aunque el aviso automático (webhook) llegue tarde o falle.
+    async function verificarPago(token) {
+      const id = idPagoDeLaUrl();
+      if (!id) return;
+      try {
+        const r = await fetch(SUPABASE_URL + "/functions/v1/crear-pago", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "apikey": SUPABASE_KEY },
+          body: JSON.stringify({ accion: "verificar", token: token, payment_id: id })
+        });
+        const datos = await r.json();
+        ultimoResultado = datos && datos.resultado ? String(datos.resultado) : "";
+      } catch (e) { /* si falla, el aviso automático lo confirma igual */ }
+    }
 
     async function cargarMiTurno(token, desdeLink, extra) {
       const sec = $("miTurno"), caja = $("miTurnoCaja");
       let t;
       try { t = await rpc("ver_turno", { p_token: token }); } catch (e) { return; }
+      if (t.encontrado && (t.estado === "pendiente_pago" || t.estado === "expirado") && verificaciones < 6 && idPagoDeLaUrl()) {
+        verificaciones++;
+        await verificarPago(token);
+        try { t = await rpc("ver_turno", { p_token: token }); } catch (e) { return; }
+      }
       caja.replaceChildren();
 
       if (!t.encontrado) {
@@ -688,8 +718,15 @@
           b.onclick = function () { cancelarMiTurno(token); };
           caja.appendChild(b);
         }
-      } else if (t.estado === "expirado") {
-        caja.appendChild(el("p", "mt-msg", "El tiempo para pagar venció y el horario se liberó. Podés reservar de nuevo cuando quieras."));
+      } else if (t.estado === "expirado" || (t.estado === "cancelado" && ["horario_tomado", "horario_pasado", "monto_distinto", "cancelado_devolver"].indexOf(ultimoResultado) !== -1)) {
+        if (["horario_tomado", "horario_pasado", "monto_distinto", "cancelado_devolver"].indexOf(ultimoResultado) !== -1) {
+          caja.appendChild(el("p", "mt-msg", "Recibimos tu pago, pero este horario ya no está disponible. La barbería se va a comunicar con vos para devolvértelo."));
+          const w = el("a", "btn-sec", "Escribir por WhatsApp");
+          w.href = "https://wa.me/" + D.ajustes.whatsapp; w.target = "_blank"; w.rel = "noopener";
+          caja.appendChild(w);
+        } else {
+          caja.appendChild(el("p", "mt-msg", "El tiempo para pagar venció y el horario se liberó. Podés reservar de nuevo cuando quieras."));
+        }
       } else if (t.estado !== "activo") {
         caja.appendChild(el("p", "mt-msg", "Este turno está cancelado."));
       } else if (paso) {
