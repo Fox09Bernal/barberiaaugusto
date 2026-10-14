@@ -292,11 +292,21 @@
     .opcion:hover, .dia:hover:not(:disabled), .hora:hover { border-color: rgba(201, 162, 75, .55); }
     .opcion:active, .dia:active:not(:disabled), .hora:active { transform: scale(.98); }
     .opcion { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 15px 16px; border-radius: 16px; text-align: left; font: 500 15px var(--sans); }
-    .opcion[aria-pressed="true"] { border-color: var(--oro); background: linear-gradient(180deg, rgba(201, 162, 75, .17), rgba(201, 162, 75, .05)); box-shadow: inset 0 0 0 1px var(--oro); }
+    .opcion[aria-pressed="true"], .opcion[aria-checked="true"] { border-color: var(--oro); background: linear-gradient(180deg, rgba(201, 162, 75, .17), rgba(201, 162, 75, .05)); box-shadow: inset 0 0 0 1px var(--oro); }
     .op-izq { min-width: 0; }
     .op-nombre { display: block; font-weight: 600; }
     .op-det { display: block; color: var(--suave); font-size: 13px; margin-top: 2px; }
     .op-precio { font-family: var(--serif); color: var(--oro-claro); font-size: 19px; white-space: nowrap; font-variant-numeric: lining-nums; }
+
+    /* Cómo pagar: Mercado Pago o en el local */
+    .opciones.opciones-pago { grid-template-columns: minmax(0, 1fr); }
+    .opcion-pago { gap: 12px; }
+    .opcion-pago .op-ico { width: 40px; height: 40px; flex: none; border-radius: 12px; display: grid; place-items: center; background: rgba(201, 162, 75, .14); color: var(--oro); }
+    .opcion-pago .op-ico svg { width: 21px; height: 21px; }
+    .opcion-pago .op-izq { flex: 1; }
+    .opcion-pago .op-det { line-height: 1.4; }
+    .opcion-pago .op-precio:empty { display: none; }
+    @media (max-width: 380px) { .opcion-pago .op-ico { display: none; } }
 
     .dias-wrap { position: relative; }
     .dias { display: flex; gap: 8px; overflow-x: auto; padding: 3px 0 10px; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: #333 transparent; -webkit-overflow-scrolling: touch; }
@@ -376,6 +386,7 @@
     @keyframes pop { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .exito h3 { font-size: clamp(30px, 6vw, 38px); }
     .exito > p { color: var(--suave); margin: 10px 0 0; }
+    .exito .info-pago-exito { color: #e6dbc2; max-width: 440px; margin: 0 auto 20px; text-align: left; align-items: flex-start; }
     .boleto { margin: 26px 0 22px; padding: 22px 18px; border-radius: 18px; background: #0c0c0c; border: 1px dashed rgba(201, 162, 75, .4); }
     .boleto .b-fecha { font-family: var(--serif); font-size: clamp(22px, 5vw, 27px); line-height: 1.25; font-variant-numeric: lining-nums; }
     .boleto .b-fecha span { color: var(--oro-claro); }
@@ -627,6 +638,10 @@
               <p class="ayuda" id="ayudaTel">Con código de área, sin 0 ni 15. Lo usamos solo para avisarte sobre tu turno.</p>
               <input id="contacto_extra" type="text" class="trampa" tabindex="-1" autocomplete="off" aria-hidden="true">
             </div>
+            <div class="paso" id="paso5" hidden>
+              <div class="paso-cab"><span class="num"><span>5</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><h3>¿Cómo querés pagar?</h3></div>
+              <div id="opcionesPago" class="opciones opciones-pago" role="radiogroup" aria-label="Cómo querés pagar"></div>
+            </div>
           </div>
 
           <aside class="tarjeta resumen" id="resumen" aria-label="Resumen de tu reserva">
@@ -752,7 +767,7 @@
     const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
     let D = { ajustes: null, servicios: [], horarios: [] };
     let ocupados = [];
-    const sel = { servicio: null, dia: null, hora: null };
+    const sel = { servicio: null, dia: null, hora: null, pago: "mercadopago" };
     let reservando = false;
     let redirigiendo = false;
 
@@ -791,6 +806,7 @@
       copiar: '<rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/>',
       alerta: '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.4 17.5a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
       tarjeta: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
+      billete: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.7"/><path d="M6 9.5h.01M18 14.5h.01"/>',
       afuera: '<path d="M7 17L17 7M8 7h9v9"/>',
       rayo: '<path d="M13 2.5L4.5 13.5H12l-1 8 8.5-11H12l1-8z"/>'
     };
@@ -1184,7 +1200,41 @@
 
     function pagosActivos() { return !!(D.ajustes && D.ajustes.pagos_activos); }
     function montoSena(s) { return Math.ceil(s.precio * D.ajustes.pago_porcentaje / 100); }
-    function textoBoton() { return pagosActivos() ? "Reservar y pagar seña" : "Confirmar reserva"; }
+    // ¿Hay algo para cobrar online con el servicio elegido? (si todavía no eligió servicio, se asume que sí)
+    function cobraOnline() { return pagosActivos() && (!sel.servicio || montoSena(sel.servicio) > 0); }
+    // ¿El cliente puede elegir entre pagar con Mercado Pago o en el local?
+    function puedeEfectivo() { return cobraOnline() && !!D.ajustes.pago_efectivo; }
+    function pagaEnLocal() { return puedeEfectivo() && sel.pago === "efectivo"; }
+    function metodoPago() { return puedeEfectivo() ? sel.pago : ""; }
+    function textoBoton() { return cobraOnline() && !pagaEnLocal() ? "Reservar y pagar seña" : "Confirmar reserva"; }
+
+    // ---------- Cómo pagar (solo si el negocio acepta efectivo) ----------
+    const pagoUI = {};
+    function armarPago() {
+      const cont = $("opcionesPago");
+      cont.replaceChildren();
+      [["mercadopago", "tarjeta"], ["efectivo", "billete"]].forEach(function (p) {
+        const b = el("button", "opcion opcion-pago");
+        b.type = "button";
+        b.setAttribute("role", "radio");
+        b.setAttribute("aria-checked", "false");
+        b.dataset.metodo = p[0];
+        const ico = el("span", "op-ico");
+        ico.appendChild(icono(p[1]));
+        const izq = el("span", "op-izq");
+        const nom = el("span", "op-nombre");
+        const det = el("span", "op-det");
+        izq.appendChild(nom);
+        izq.appendChild(det);
+        const der = el("span", "op-precio");
+        b.appendChild(ico);
+        b.appendChild(izq);
+        b.appendChild(der);
+        b.onclick = function () { sel.pago = p[0]; actualizar(); };
+        cont.appendChild(b);
+        pagoUI[p[0]] = { b: b, nom: nom, det: det, der: der };
+      });
+    }
 
     function ponerResumen(id, valor) {
       const e = $(id);
@@ -1232,11 +1282,34 @@
         ? "Escribilo con código de área, sin 0 ni 15. Ej: 3411234567"
         : "Con código de área, sin 0 ni 15. Lo usamos solo para avisarte sobre tu turno.";
 
+      // Si el negocio acepta efectivo, el cliente elige cómo pagar
+      const elige = puedeEfectivo();
+      $("paso5").hidden = !elige;
+      if (elige) {
+        const totalMP = D.ajustes.pago_porcentaje >= 100;
+        const s = sel.servicio;
+        pagoUI.mercadopago.nom.textContent = totalMP ? "Pagar ahora con Mercado Pago" : "Pagar la seña con Mercado Pago";
+        pagoUI.mercadopago.det.textContent = totalMP
+          ? "Con tarjeta o dinero en cuenta. Tu turno queda confirmado al instante."
+          : "Pagás una seña y el resto en el local. Tu turno queda confirmado al instante.";
+        pagoUI.mercadopago.der.textContent = s ? plata(montoSena(s)) : "";
+        pagoUI.efectivo.nom.textContent = "Pagar en el local";
+        pagoUI.efectivo.det.textContent = "Reservás sin pagar nada ahora y abonás en efectivo cuando vengas.";
+        pagoUI.efectivo.der.textContent = s ? plata(s.precio) : "";
+        pagoUI.mercadopago.b.setAttribute("aria-checked", sel.pago === "mercadopago" ? "true" : "false");
+        pagoUI.efectivo.b.setAttribute("aria-checked", sel.pago === "efectivo" ? "true" : "false");
+        $("paso5").classList.toggle("hecho", datosOk);
+      }
+
       const info = $("infoPago");
-      if (pagosActivos() && sel.servicio) {
-        const total = D.ajustes.pago_porcentaje >= 100;
-        info.replaceChildren(icono("tarjeta"), el("span", "", (total ? "Se paga el total: " : "Para confirmar el turno se paga una seña de ") + plata(montoSena(sel.servicio)) +
-          " con Mercado Pago. Tu horario queda reservado " + D.ajustes.pago_retencion_min + " minutos para que puedas pagar."));
+      if (cobraOnline() && sel.servicio) {
+        if (pagaEnLocal()) {
+          info.replaceChildren(icono("billete"), el("span", "", "Pagás " + plata(sel.servicio.precio) + " en efectivo en el local. Tu turno queda confirmado al instante, sin pagar nada ahora."));
+        } else {
+          const total = D.ajustes.pago_porcentaje >= 100;
+          info.replaceChildren(icono("tarjeta"), el("span", "", (total ? "Se paga el total: " : "Para confirmar el turno se paga una seña de ") + plata(montoSena(sel.servicio)) +
+            " con Mercado Pago. Tu horario queda reservado " + D.ajustes.pago_retencion_min + " minutos para que puedas pagar."));
+        }
         info.hidden = false;
       } else {
         info.hidden = true;
@@ -1421,6 +1494,7 @@
       pasado: "Ese horario ya pasó. Elegí otro.",
       horario: "Ese horario no está disponible. Recargá la página y elegí otro.",
       servicio: "Ese servicio ya no está disponible. Recargá la página.",
+      efectivo_no: "Por ahora los turnos se reservan pagando con Mercado Pago. Recargá la página y probá de nuevo.",
       invalido: "No se pudo reservar. Probá de nuevo."
     };
 
@@ -1456,11 +1530,12 @@
       return a;
     }
 
-    function mostrarExito(res, fecha, hora, nombre) {
+    function mostrarExito(res, fecha, hora, nombre, precio) {
       const base = location.href.split("#")[0].split("?")[0];
       const linkCancelar = base + "?turno=" + res.token;
       const resumen = diaTexto(fecha) + " a las " + hora;
-      const textoWA = "Hola! Reservé un turno.\nServicio: " + res.servicio + "\nDía: " + resumen + "\nNombre: " + nombre;
+      const enLocal = res.pago_metodo === "efectivo";
+      const textoWA = "Hola! Reservé un turno.\nServicio: " + res.servicio + "\nDía: " + resumen + "\nNombre: " + nombre + (enLocal ? "\nPago: en efectivo en el local" : "");
 
       const caja = $("exito");
       caja.replaceChildren();
@@ -1476,6 +1551,13 @@
       boleto.appendChild(f);
       boleto.appendChild(el("div", "b-det", res.servicio + " · " + res.minutos + " min"));
       caja.appendChild(boleto);
+
+      if (enLocal) {
+        const np = el("p", "info-pago info-pago-exito");
+        np.appendChild(icono("billete"));
+        np.appendChild(el("span", "", "Abonás " + (precio ? plata(precio) + " " : "") + "en efectivo en el local. No tenés que pagar nada ahora."));
+        caja.appendChild(np);
+      }
 
       const acciones = el("div", "acciones");
       acciones.appendChild(botonLink("btn-verde", "chat", "Avisar por WhatsApp", "https://wa.me/" + D.ajustes.whatsapp + "?text=" + encodeURIComponent(textoWA)));
@@ -1536,15 +1618,16 @@
       $("falta").textContent = "";
       limpiarMensaje();
 
-      const fecha = sel.dia, hora = sel.hora;
+      const fecha = sel.dia, hora = sel.hora, precio = sel.servicio.precio;
       try {
-        const res = await rpc("reservar_turno", {
+        const res = await rpc("reservar_turno_con_pago", {
           p_servicio_id: sel.servicio.id,
           p_fecha: fechaISO(fecha),
           p_hora: hora,
           p_nombre: nombre,
           p_telefono: tel,
-          p_trampa: $("contacto_extra").value
+          p_trampa: $("contacto_extra").value,
+          p_metodo: metodoPago()
         });
         if (res.ok) {
           try { localStorage.setItem("turno_token", res.token); } catch (e) {}
@@ -1553,7 +1636,7 @@
           if (res.requiere_pago) {
             irAPagar(res.token);
           } else {
-            mostrarExito(res, fecha, hora, nombre);
+            mostrarExito(res, fecha, hora, nombre, precio);
           }
         } else {
           mostrarMensaje("error", ERRORES[res.error] || ERRORES.invalido);
@@ -1645,7 +1728,7 @@
       else if (t.estado === "expirado" || (t.estado === "cancelado" && devolver)) estado("mal", devolver ? "Pago a devolver" : "Vencido");
       else if (t.estado !== "activo") estado("mal", "Cancelado");
       else if (paso) estado("neutro", "Finalizado");
-      else estado("ok", t.pago_estado === "pagado" ? "Confirmado · seña pagada" : "Confirmado");
+      else estado("ok", t.pago_estado === "pagado" ? "Confirmado · seña pagada" : t.pago_metodo === "efectivo" ? "Confirmado · pagás en el local" : "Confirmado");
       caja.appendChild(cab);
 
       const titulo = el("div", "mt-hora", cap(fechaLinda(fecha)) + " · ");
@@ -1692,6 +1775,7 @@
         caja.appendChild(el("p", "mt-msg", "Este turno ya pasó."));
       } else {
         if (t.pago_estado === "pagado") caja.appendChild(el("p", "mt-msg", "✓ Seña pagada (" + plata(t.pago_monto) + "). Tu turno está confirmado."));
+        else if (t.pago_metodo === "efectivo") caja.appendChild(el("p", "mt-msg", "Pagás en efectivo en el local. No hace falta pagar nada online."));
         acciones.appendChild(botonLink("btn-borde", "calendario", "Agregar a mi calendario",
           linkCalendario(t.fecha, hora, t.minutos, t.servicio, location.href.split("#")[0].split("?")[0] + "?turno=" + token)));
         if (t.puede_cancelar) {
@@ -1792,6 +1876,7 @@
       D.servicios = (D.servicios || []).filter(function (s) { return s.activo !== false; });
       D.horarios = D.horarios || [];
       aplicarDatos();
+      armarPago();
       renderListaServicios();
       renderGaleria();
       renderOpiniones();

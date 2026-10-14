@@ -225,6 +225,7 @@
     .tag.pagado { background: rgba(74, 222, 128, .1); color: #8ef0b1; }
     .tag.espera { background: rgba(240, 180, 92, .12); color: #f6c886; }
     .tag.devolver { background: rgba(229, 138, 138, .12); color: #f4b0b0; }
+    .tag.local { background: rgba(201, 162, 75, .14); color: var(--oro-claro); }
     .tag.manual { background: rgba(143, 180, 255, .12); color: var(--azul); margin: 0 0 0 6px; vertical-align: 1px; }
     .tag.enviado { background: rgba(255, 255, 255, .06); color: var(--suave); }
     .vacio { color: var(--suave); text-align: center; padding: 26px 10px; font-size: 14.5px; }
@@ -879,7 +880,7 @@
       const boton = $("actualizar");
       boton.classList.add("girando");
       try {
-        const r = await api("/rest/v1/turnos?fecha=eq." + fecha + "&estado=in.(activo,pendiente_pago)&order=hora.asc&select=id,hora,servicio,minutos,nombre,telefono,estado,pago_estado,pago_monto,vence_en,pago_nota");
+        const r = await api("/rest/v1/turnos?fecha=eq." + fecha + "&estado=in.(activo,pendiente_pago)&order=hora.asc&select=id,hora,servicio,minutos,nombre,telefono,estado,pago_estado,pago_monto,vence_en,pago_nota,pago_metodo");
         if (!r.ok) throw new Error("Error " + r.status);
         const datos = await r.json();
         if (mio !== pedidoAgenda) return;
@@ -1042,6 +1043,7 @@
         if (espera) info.appendChild(el("span", "tag espera", "⏳ Esperando pago de " + plata(t.pago_monto) + " · vence " + horaLocal(t.vence_en)));
         else if (t.pago_estado === "pagado") info.appendChild(el("span", "tag pagado", "✓ Seña pagada " + plata(t.pago_monto)));
         else if (t.pago_estado === "reembolsar") info.appendChild(el("span", "tag devolver", "⚠ Devolver " + plata(t.pago_monto)));
+        else if (t.pago_metodo === "efectivo") info.appendChild(el("span", "tag local", "$ Paga en el local"));
       }
       caja.appendChild(info);
 
@@ -1200,7 +1202,7 @@
       $("rFechaLarga").textContent = cap(fechaLarga(fecha));
       $("rRelativo").textContent = relativo(fecha);
       try {
-        const r = await api("/rest/v1/turnos?fecha=eq." + fecha + "&estado=eq.activo&servicio=neq.BLOQUEO&order=hora.asc&select=id,hora,servicio,minutos,nombre,telefono,token,recordatorio_enviado");
+        const r = await api("/rest/v1/turnos?fecha=eq." + fecha + "&estado=eq.activo&servicio=neq.BLOQUEO&order=hora.asc&select=id,hora,servicio,minutos,nombre,telefono,token,recordatorio_enviado,pago_metodo");
         if (!r.ok) throw new Error();
         listaRecord = await r.json();
         dibujarRecord();
@@ -1239,11 +1241,13 @@
         info.appendChild(el("div", "item-det", t.servicio));
         if (!t.telefono) info.appendChild(el("div", "item-det", "Sin teléfono: avisale de otra forma."));
         else if (t.recordatorio_enviado) info.appendChild(el("span", "tag enviado", "✓ Recordatorio enviado"));
+        if (t.pago_metodo === "efectivo") info.appendChild(el("span", "tag local", "$ Paga en el local"));
         caja.appendChild(info);
 
         if (t.telefono) {
           const acc = el("div", "item-acc");
           const msg = "Hola " + nombre + "! Te recordamos tu turno en " + nombreNegocio() + ": " + t.servicio + ", " + fechaLarga(fecha) + " a las " + t.hora.slice(0, 5) +
+            (t.pago_metodo === "efectivo" ? ". Recordá que abonás en el local" : "") +
             ". Si no podés venir, cancelalo acá así otra persona puede tomarlo: " + base + "?turno=" + t.token;
           const wa = enlaceWA(t.recordatorio_enviado ? "Reenviar" : "Enviar recordatorio", t.telefono, msg, t.recordatorio_enviado ? "hecho" : "");
           wa.onclick = function () { marcarEnviado(t); };
@@ -1480,6 +1484,25 @@
       cont.appendChild(fila);
       refsPagos.pagos_activos = sw.input;
 
+      // Opcional: que el cliente pueda elegir pagar en efectivo en el local
+      if (a.pago_efectivo !== undefined) {
+        const swEf = el("div");
+        const ef = interruptor("También permitir pagar en efectivo en el local", a.pago_efectivo);
+        swEf.style.margin = "0 0 18px";
+        swEf.appendChild(ef.label);
+        const ayudaEf = el("p", "ayuda", "Si está activado, al reservar el cliente elige: pagar la seña con Mercado Pago o pagar en el local. Si está apagado, para reservar tiene que pagar con Mercado Pago.");
+        ayudaEf.style.margin = "10px 0 0";
+        swEf.appendChild(ayudaEf);
+        cont.appendChild(swEf);
+        refsPagos.pago_efectivo = ef.input;
+        const sincronizar = function () {
+          ef.input.disabled = !sw.input.checked;
+          swEf.style.opacity = sw.input.checked ? "" : ".5";
+        };
+        sw.input.addEventListener("change", sincronizar);
+        sincronizar();
+      }
+
       const pct = entrada("number", a.pago_porcentaje, { min: 10, max: 100, inputMode: "numeric" });
       refsPagos.pago_porcentaje = pct;
       cont.appendChild(campo("Porcentaje del precio que se cobra", pct));
@@ -1511,13 +1534,18 @@
       const ret = Number(refsPagos.pago_retencion_min.value);
       if (!(pct >= 10 && pct <= 100)) { aviso("error", "El porcentaje tiene que estar entre 10 y 100."); return; }
       if (!(ret >= 5 && ret <= 60)) { aviso("error", "La retención tiene que estar entre 5 y 60 minutos."); return; }
-      if (activo && !S.ajustes.pagos_activos && !await preguntar("¿Activar los pagos?", "A partir de ahora los clientes tendrán que pagar para confirmar. Hacelo solo si Mercado Pago ya está instalado y probado.", "Sí, activar", false)) return;
+      const efectivo = !!(refsPagos.pago_efectivo && refsPagos.pago_efectivo.checked);
+      if (activo && !S.ajustes.pagos_activos && !await preguntar("¿Activar los pagos?", efectivo
+        ? "A partir de ahora los clientes van a poder pagar la seña con Mercado Pago o elegir pagar en el local. Hacelo solo si Mercado Pago ya está instalado y probado."
+        : "A partir de ahora los clientes tendrán que pagar para confirmar. Hacelo solo si Mercado Pago ya está instalado y probado.", "Sí, activar", false)) return;
       const boton = $("guardarPagos");
       cargandoBoton(boton);
       try {
+        const cambios = { pagos_activos: activo, pago_porcentaje: pct, pago_retencion_min: ret, pago_politica: refsPagos.pago_politica.value.trim() };
+        if (refsPagos.pago_efectivo) cambios.pago_efectivo = efectivo;
         const r = await api("/rest/v1/ajustes?id=eq.1", {
           method: "PATCH", headers: { "Prefer": "return=minimal" },
-          body: JSON.stringify({ pagos_activos: activo, pago_porcentaje: pct, pago_retencion_min: ret, pago_politica: refsPagos.pago_politica.value.trim() })
+          body: JSON.stringify(cambios)
         });
         if (!r.ok) throw new Error();
         aviso("ok", activo ? "Pagos guardados y ACTIVADOS." : "Pagos guardados (apagados).");
