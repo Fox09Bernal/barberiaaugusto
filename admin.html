@@ -2,291 +2,550 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
-  <meta name="theme-color" content="#0b0b0b">
-  <title>Panel</title>
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Panel | Barbería Augusto</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Cg fill='none' stroke='%23c9a24b' stroke-width='4' stroke-linecap='round'%3E%3Ccircle cx='18' cy='18' r='7'/%3E%3Ccircle cx='18' cy='46' r='7'/%3E%3Cpath d='M52 12 23 41M38 38l14 14M23 23l9 9'/%3E%3C/g%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --acento: #c9a24b;
-      --fondo: #0b0b0b;
-      --tarjeta: #151515;
-      --borde: #2b2b2b;
-      --texto: #f4efe6;
-      --suave: #9b968c;
-      --rojo: #8f2a2a;
+      --oro: #c9a24b;
+      --oro-claro: #e9cd88;
+      --oro-grad: linear-gradient(135deg, #f1d796 0%, #d2ac57 42%, #ad8536 100%);
+      --fondo: #0a0a0a;
+      --tarjeta: #141414;
+      --tarjeta-2: #1b1b1b;
+      --borde: rgba(255, 255, 255, .08);
+      --borde-2: rgba(255, 255, 255, .15);
+      --texto: #f5f0e6;
+      --suave: #aaa397;
+      --tenue: #77716a;
       --verde: #25d366;
+      --rojo: #e58a8a;
+      --naranja: #f0b45c;
+      --azul: #8fb4ff;
+      --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
     }
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
-    body { margin: 0; font-family: 'Inter', Arial, sans-serif; background: var(--fondo); color: var(--texto); line-height: 1.5; padding: 20px 16px 90px; }
-    .wrap { max-width: 560px; margin: 0 auto; }
-    h1, h2, h3 { font-family: 'Oswald', Impact, sans-serif; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; margin: 0; }
-    h1 { font-size: 26px; }
-    h2 { font-size: 20px; margin-bottom: 14px; }
-    h3 { font-size: 16px; margin-bottom: 10px; color: var(--acento); }
-    .etiqueta { letter-spacing: 4px; font-size: 11px; text-transform: uppercase; color: var(--acento); font-weight: 600; }
-    .cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .nota { color: var(--suave); font-size: 13px; margin: 0 0 14px; }
+    html { -webkit-text-size-adjust: 100%; color-scheme: dark; }
+    body { margin: 0; font-family: var(--sans); font-size: 15.5px; line-height: 1.5; background: var(--fondo); color: var(--texto); -webkit-font-smoothing: antialiased; font-variant-numeric: lining-nums; }
+    body.sin-scroll { overflow: hidden; }
+    h1, h2, h3 { margin: 0; font-family: var(--serif); font-weight: 600; line-height: 1.15; }
+    button, input, select, textarea { font-family: inherit; font-variant-numeric: inherit; }
+    a { color: inherit; }
+    svg { flex-shrink: 0; }
+    [data-icono] { display: inline-grid; place-items: center; }
+    [data-icono] svg { display: block; }
+    :focus-visible { outline: 2px solid var(--oro-claro); outline-offset: 2px; }
+    .sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
 
-    .tarjeta { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; padding: 18px; margin-bottom: 18px; }
-    input, select, textarea { width: 100%; padding: 13px; border-radius: 10px; border: 1px solid var(--borde); background: #1f1f1f; color: var(--texto); font: 16px 'Inter', Arial, sans-serif; }
-    textarea { resize: vertical; min-height: 70px; }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--acento); }
-    input[type=checkbox] { width: 20px; height: 20px; padding: 0; accent-color: var(--acento); }
-    label { display: block; font-size: 13px; color: var(--suave); margin: 12px 0 5px; }
-    label:first-child { margin-top: 0; }
-    label.check { display: flex; align-items: center; gap: 10px; color: var(--texto); font-size: 15px; margin: 12px 0; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 10px; font: 600 11px/1.2 var(--sans); letter-spacing: .28em; text-transform: uppercase; color: var(--oro); }
+    .nota { color: var(--suave); font-size: 13.5px; margin: 0 0 14px; }
+    .tarjeta {
+      background: linear-gradient(180deg, #161616, #111); border: 1px solid var(--borde); border-radius: 20px; padding: 20px 18px; margin-bottom: 16px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 24px 50px -30px rgba(0, 0, 0, .9);
+    }
+    .tarjeta > h2 { font-size: 23px; margin-bottom: 8px; }
+    @media (min-width: 600px) { .tarjeta { padding: 24px 26px; } }
 
-    button { font: 600 15px 'Inter', Arial, sans-serif; cursor: pointer; border-radius: 10px; border: 1px solid var(--borde); background: #1f1f1f; color: var(--texto); padding: 12px 16px; }
-    button:hover { border-color: var(--acento); }
-    .principal { width: 100%; background: var(--acento); color: #111; border: none; margin-top: 16px; padding: 14px; }
-    .peligro { background: var(--rojo); border: none; color: #fff; }
-    .chico { padding: 8px 12px; font-size: 13px; }
-    a.btn-wa { display: inline-block; text-align: center; background: var(--verde); color: #fff; text-decoration: none; border-radius: 10px; padding: 8px 12px; font: 600 13px 'Inter', Arial, sans-serif; }
-    a.btn-wa.hecho { background: #2c2c2c; color: var(--suave); }
+    /* Botones */
+    .btn {
+      --alto: 50px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: var(--alto); padding: 0 20px;
+      border-radius: 999px; border: 1px solid transparent; font: 600 14.5px/1.2 var(--sans); cursor: pointer; text-decoration: none; text-align: center;
+      transition: transform .15s, box-shadow .2s, background .2s, border-color .2s, color .2s; -webkit-tap-highlight-color: transparent;
+    }
+    .btn svg { width: 18px; height: 18px; }
+    .btn:active { transform: scale(.98); }
+    .btn-oro { background: var(--oro-grad); color: #17130a; box-shadow: 0 10px 26px -12px rgba(201, 162, 75, .6), inset 0 1px 0 rgba(255, 255, 255, .4); }
+    .btn-borde { background: rgba(255, 255, 255, .03); color: var(--texto); border-color: var(--borde-2); }
+    .btn-borde:hover { border-color: var(--oro); color: var(--oro-claro); }
+    .btn-peligro { background: transparent; color: #f2aaaa; border-color: rgba(229, 138, 138, .45); }
+    .btn-peligro:hover { background: rgba(229, 138, 138, .1); }
+    .btn-peligro-lleno { background: #8f2a2a; color: #fff; }
+    .btn-verde { background: rgba(37, 211, 102, .14); color: #5ee08f; border-color: rgba(37, 211, 102, .3); }
+    .btn-verde:hover { background: rgba(37, 211, 102, .22); }
+    .btn-verde.hecho { background: transparent; color: var(--suave); border-color: var(--borde-2); }
+    .btn-bloque { width: 100%; }
+    .btn-chico { --alto: 38px; padding: 0 14px; font-size: 13px; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .btn-icono {
+      width: 44px; height: 44px; border-radius: 14px; display: inline-grid; place-items: center; flex-shrink: 0; cursor: pointer;
+      border: 1px solid var(--borde-2); background: rgba(255, 255, 255, .03); color: var(--texto); text-decoration: none; transition: border-color .2s, color .2s;
+    }
+    .btn-icono svg { width: 20px; height: 20px; }
+    .btn-icono:hover { border-color: var(--oro); color: var(--oro); }
+    .spinner { width: 17px; height: 17px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: girar .8s linear infinite; display: inline-block; }
+    @keyframes girar { to { transform: rotate(360deg); } }
+    .girando svg { animation: girar .8s linear infinite; }
 
-    /* Pestañas */
-    .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
-    .tab { flex: 1; padding: 11px 2px; font-size: 13px; }
-    .tab.activo { background: var(--acento); color: #111; border-color: var(--acento); }
+    /* Formularios */
+    .campo { display: block; margin-bottom: 12px; }
+    .campo > span, .etq { display: block; font-size: 12.5px; color: var(--suave); margin-bottom: 6px; font-weight: 500; }
+    .input, select.input, textarea.input {
+      width: 100%; height: 50px; padding: 0 14px; border-radius: 13px; border: 1px solid var(--borde-2); background: #0c0c0c; color: var(--texto);
+      font-size: 16px; transition: border-color .2s, box-shadow .2s; -webkit-appearance: none; appearance: none;
+    }
+    textarea.input { height: auto; min-height: 84px; padding: 12px 14px; resize: vertical; line-height: 1.45; }
+    select.input { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aaa397' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; background-size: 16px; padding-right: 40px; }
+    .input:focus { outline: none; border-color: var(--oro); box-shadow: 0 0 0 4px rgba(201, 162, 75, .15); }
+    .input::placeholder { color: #5c5850; }
+    .input-chico { height: 44px; font-size: 15px; }
+    .fila2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+    .ayuda { font-size: 12.5px; color: var(--tenue); margin: -6px 0 12px; }
+    .con-boton { position: relative; }
+    .con-boton .input { padding-right: 70px; }
+    .con-boton button { position: absolute; right: 6px; top: 6px; height: 38px; padding: 0 12px; border-radius: 10px; border: 0; background: #222; color: var(--suave); font-size: 13px; font-weight: 600; cursor: pointer; }
 
-    /* Semana */
-    .semana { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
-    .dia { flex-shrink: 0; min-width: 64px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 8px; }
-    .dia .nom { font-size: 12px; color: var(--suave); }
-    .dia .fec { font-weight: 600; }
-    .dia .cant { font-size: 12px; color: var(--suave); }
-    .dia.tiene .cant { color: var(--acento); font-weight: 600; }
-    .dia.activo { border-color: var(--acento); background: rgba(201,162,75,.15); }
+    /* Interruptor */
+    .switch { display: inline-flex; align-items: center; gap: 12px; cursor: pointer; font-size: 15px; user-select: none; }
+    .switch .pista { position: relative; width: 46px; height: 28px; border-radius: 999px; background: #2a2a2a; border: 1px solid var(--borde-2); transition: background .2s, border-color .2s; flex-shrink: 0; }
+    .switch .pista::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #bdb7ab; transition: transform .2s, background .2s; }
+    .switch input:checked + .pista { background: var(--oro-grad); border-color: transparent; }
+    .switch input:checked + .pista::after { transform: translateX(18px); background: #17130a; }
+    .switch input:focus-visible + .pista { outline: 2px solid var(--oro-claro); outline-offset: 2px; }
+    .check-simple { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--suave); margin: 4px 0 16px; cursor: pointer; }
+    .check-simple input { width: 18px; height: 18px; accent-color: var(--oro); margin: 0; }
 
-    .nav-fecha { display: flex; gap: 8px; margin-bottom: 14px; }
-    .nav-fecha input { flex: 1; min-width: 0; }
-    .nav-fecha button { padding: 12px 14px; }
-    .titulo-dia { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; gap: 8px; }
-    .titulo-dia .fecha-larga { font-weight: 600; text-transform: capitalize; }
-    .titulo-dia .total { color: var(--acento); font-size: 14px; font-weight: 600; white-space: nowrap; }
+    /* ============ LOGIN ============ */
+    .login { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 28px 16px; position: relative; overflow: hidden; }
+    .login::before { content: ""; position: absolute; width: 640px; height: 640px; border-radius: 50%; top: -260px; left: 50%; transform: translateX(-50%); background: radial-gradient(circle, rgba(201, 162, 75, .16), transparent 65%); pointer-events: none; }
+    .login-caja { position: relative; width: 100%; max-width: 410px; padding: 34px 26px 26px; text-align: left; }
+    .login-logo { width: 62px; height: 62px; border-radius: 18px; display: grid; place-items: center; margin-bottom: 20px; background: rgba(201, 162, 75, .12); color: var(--oro); border: 1px solid rgba(201, 162, 75, .3); }
+    .login-logo svg { width: 28px; height: 28px; }
+    .login h1 { font-size: 34px; margin: 10px 0 6px; }
+    .login .nota { margin-bottom: 22px; }
+    .msg-login { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: rgba(229, 138, 138, .1); border: 1px solid rgba(229, 138, 138, .35); color: #f6caca; font-size: 14px; display: none; }
+    .msg-login.visible { display: block; }
 
-    .turno { background: #1b1b1b; border: 1px solid var(--borde); border-left: 4px solid var(--acento); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-    .turno.bloqueo { border-left-color: #777; background: #202018; }
-    .turno.manual { border-left-color: var(--verde); }
-    .turno.espera { border-left-color: #d98b2b; border-style: dashed; border-left-style: solid; }
-    .tag { display: inline-block; margin-top: 4px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-    .tag.pagado { background: #12301f; color: #7fe3a8; }
-    .tag.espera { background: #3a2a10; color: #f0b45c; }
-    .tag.devolver { background: #3a1616; color: #ff9d9d; }
-    .total-pagos { color: var(--acento); font-weight: 600; }
-    .turno .hora { font-family: 'Oswald', Impact, sans-serif; font-size: 20px; letter-spacing: 1px; }
-    .turno .detalle { color: var(--suave); font-size: 14px; word-break: break-word; }
-    .turno .acciones { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
-    .vacio { color: var(--suave); text-align: center; padding: 22px 10px; }
+    /* ============ PANEL ============ */
+    .top { position: sticky; top: 0; z-index: 30; background: rgba(10, 10, 10, .85); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--borde); padding-top: env(safe-area-inset-top); }
+    .top-in { max-width: 820px; margin: 0 auto; height: 64px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .top-marca { min-width: 0; }
+    .top-marca strong { display: block; font-family: var(--serif); font-size: 20px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .top-acc { display: flex; gap: 8px; align-items: center; }
+    .top-acc .btn-icono { width: 40px; height: 40px; border-radius: 12px; }
+    .contenido { max-width: 820px; margin: 0 auto; padding: 16px 16px calc(110px + env(safe-area-inset-bottom)); }
 
-    .fila2 { display: flex; gap: 10px; }
-    .fila2 > div { flex: 1; min-width: 0; }
+    /* Pestañas: abajo en el celular, arriba en la compu */
+    .tabs {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(4, 1fr);
+      background: rgba(14, 14, 14, .94); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-top: 1px solid var(--borde);
+      padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    }
+    .tab {
+      position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 2px; border: 0; border-radius: 14px;
+      background: transparent; color: var(--tenue); font: 600 11.5px var(--sans); cursor: pointer; -webkit-tap-highlight-color: transparent; transition: color .2s, background .2s;
+    }
+    .tab svg { width: 22px; height: 22px; }
+    .tab.activo { color: var(--oro-claro); background: rgba(201, 162, 75, .1); }
+    .badge { position: absolute; top: 3px; left: calc(50% + 6px); min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: #e5484d; color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; border: 2px solid #0e0e0e; }
+    @media (min-width: 900px) {
+      .tabs { position: sticky; top: 64px; bottom: auto; max-width: 820px; margin: 0 auto; grid-template-columns: repeat(4, auto); justify-content: start; gap: 6px; padding: 12px 16px; background: rgba(10, 10, 10, .85); border-top: 0; border-bottom: 1px solid var(--borde); z-index: 29; }
+      .tab { flex-direction: row; gap: 8px; padding: 9px 16px; font-size: 14px; border-radius: 999px; }
+      .tab svg { width: 18px; height: 18px; }
+      .badge { position: static; border: 0; }
+      .contenido { padding-bottom: 60px; }
+    }
+
+    /* Encabezado de día */
+    .dia-nav { display: flex; align-items: center; gap: 10px; }
+    .dia-titulo { flex: 1; text-align: center; min-width: 0; }
+    .dia-titulo h2 { font-size: 24px; margin-top: 4px; }
+    .dia-herr { display: flex; gap: 8px; margin-top: 14px; }
+    .dia-herr .input { flex: 1; min-width: 0; }
+    .semana { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-top: 16px; }
+    .dia {
+      display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 9px 0 8px; border-radius: 14px; cursor: pointer;
+      background: var(--tarjeta-2); border: 1px solid var(--borde); color: var(--texto); font-family: var(--sans); transition: border-color .2s, background .2s; -webkit-tap-highlight-color: transparent;
+    }
+    .dia .nom { font-size: 10.5px; color: var(--suave); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+    .dia .fec { font-family: var(--serif); font-size: 19px; line-height: 1.25; }
+    .dia .cant { font-size: 11px; color: var(--tenue); font-weight: 600; }
+    .dia.tiene .cant { color: var(--oro); }
+    .dia.activo { border-color: var(--oro); background: linear-gradient(180deg, rgba(201, 162, 75, .2), rgba(201, 162, 75, .06)); }
+    .dia:hover { border-color: rgba(201, 162, 75, .5); }
+
+    /* Números del día */
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .stat { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 16px; padding: 13px 12px 12px; min-width: 0; }
+    .stat small { display: block; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--tenue); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stat strong { display: block; font-family: var(--serif); font-size: 25px; line-height: 1.25; margin-top: 4px; color: var(--texto); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stat strong.oro { color: var(--oro-claro); }
+    .stat span { display: block; font-size: 12px; color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .acciones-dia { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-bottom: 16px; }
+    .titulo-lista { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 10px; margin-bottom: 14px; }
+    .titulo-lista h2 { font-size: 22px; }
+    .total { color: var(--oro); font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+
+    /* Agenda */
+    .agenda { display: flex; flex-direction: column; gap: 10px; }
+    .item { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; }
+    .item-hora { text-align: right; padding-top: 13px; font-variant-numeric: tabular-nums; }
+    .item-hora strong { display: block; font-size: 15.5px; font-weight: 700; }
+    .item-hora small { display: block; color: var(--tenue); font-size: 12px; }
+    .item-caja { position: relative; overflow: hidden; background: var(--tarjeta-2); border: 1px solid var(--borde); border-radius: 16px; padding: 12px 14px 12px 18px; }
+    .item-caja::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--oro); }
+    .item-nombre { font-weight: 600; font-size: 15.5px; overflow-wrap: anywhere; }
+    .item-det { color: var(--suave); font-size: 13.5px; overflow-wrap: anywhere; }
+    .item-acc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .item-acc .btn { --alto: 38px; padding: 0 14px; font-size: 13px; }
+    .item.manual .item-caja::before { background: var(--azul); }
+    .item.espera .item-caja { border-style: dashed; border-color: rgba(240, 180, 92, .45); }
+    .item.espera .item-caja::before { background: var(--naranja); }
+    .item.bloqueo .item-caja { background: repeating-linear-gradient(135deg, #171717 0 10px, #1c1c1c 10px 20px); }
+    .item.bloqueo .item-caja::before { background: #6b6b6b; }
+    .item.pasado { opacity: .5; }
+    .item.libre .item-caja {
+      display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; text-align: left; cursor: pointer;
+      background: transparent; border: 1px dashed rgba(255, 255, 255, .13); color: var(--suave); padding: 11px 14px; font: 500 14px var(--sans);
+      transition: border-color .2s, color .2s;
+    }
+    .item.libre .item-caja::before { display: none; }
+    .item.libre .item-caja:hover { border-color: var(--oro); color: var(--oro-claro); }
+    .item.libre .mas { color: var(--oro); font-weight: 600; font-size: 13px; white-space: nowrap; }
+    .item.libre .item-hora { padding-top: 11px; color: var(--tenue); }
+    .ahora { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; align-items: center; color: #ff6b6b; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .ahora span { text-align: right; }
+    .ahora i { height: 2px; border-radius: 2px; background: linear-gradient(90deg, #ff6b6b, rgba(255, 107, 107, .1)); position: relative; }
+    .ahora i::before { content: ""; position: absolute; left: -4px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: #ff6b6b; }
+    @media (min-width: 600px) {
+      .item-caja:not(.libre-caja) { display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+      .item-acc { margin-top: 0; flex-shrink: 0; }
+      .item { grid-template-columns: 64px minmax(0, 1fr); }
+      .ahora { grid-template-columns: 64px minmax(0, 1fr); }
+    }
+
+    .tag { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .tag.pagado { background: rgba(74, 222, 128, .1); color: #8ef0b1; }
+    .tag.espera { background: rgba(240, 180, 92, .12); color: #f6c886; }
+    .tag.devolver { background: rgba(229, 138, 138, .12); color: #f4b0b0; }
+    .tag.manual { background: rgba(143, 180, 255, .12); color: var(--azul); margin: 0 0 0 6px; vertical-align: 1px; }
+    .tag.enviado { background: rgba(255, 255, 255, .06); color: var(--suave); }
+    .vacio { color: var(--suave); text-align: center; padding: 26px 10px; font-size: 14.5px; }
+    .vacio strong { display: block; font-family: var(--serif); font-size: 19px; color: var(--texto); margin-bottom: 4px; font-weight: 600; }
+
+    /* Recordatorios */
+    .progreso { display: flex; align-items: center; gap: 12px; margin-top: 16px; font-size: 13px; color: var(--suave); }
+    .barra { flex: 1; height: 8px; border-radius: 999px; background: #222; overflow: hidden; }
+    .barra span { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--oro-grad); transition: width .4s; }
 
     /* Configuración */
-    .edit { background: #1b1b1b; border: 1px solid var(--borde); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
-    .edit .botones { display: flex; gap: 8px; margin-top: 6px; }
-    .edit .botones button { flex: 1; }
-    .foto-edit { display: flex; align-items: center; gap: 12px; margin: 12px 0 4px; }
-    .foto-edit img, .foto-edit .sin-foto { width: 72px; height: 72px; border-radius: 10px; border: 1px solid var(--borde); flex-shrink: 0; }
-    .foto-edit img { object-fit: cover; }
-    .foto-edit .sin-foto { display: grid; place-items: center; font-size: 12px; color: var(--suave); background: #151515; text-align: center; }
-    .foto-edit .foto-botones { display: flex; flex-direction: column; gap: 8px; }
-    .dia-edit { background: #1b1b1b; border: 1px solid var(--borde); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
-    .dia-edit .cab { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 600; }
-    .dia-edit .cab label.check { margin: 0; font-size: 14px; font-weight: 400; }
-    .dia-edit .sub { font-size: 12px; color: var(--suave); margin: 8px 0 4px; }
+    .sub-nav { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px 14px; padding: 2px 16px 6px; scrollbar-width: none; }
+    .sub-nav::-webkit-scrollbar { display: none; }
+    .sub-nav a { flex-shrink: 0; padding: 9px 15px; border-radius: 999px; border: 1px solid var(--borde-2); color: var(--suave); text-decoration: none; font-size: 13.5px; font-weight: 600; }
+    .sub-nav a:hover { color: var(--oro-claro); border-color: var(--oro); }
+    .seccion-cfg { scroll-margin-top: 140px; }
+    .srv { background: var(--tarjeta-2); border: 1px solid var(--borde); border-radius: 16px; margin-bottom: 10px; overflow: hidden; }
+    .srv > summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 12px 14px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .srv > summary::-webkit-details-marker { display: none; }
+    .srv-foto { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; border: 1px solid var(--borde-2); flex-shrink: 0; background: #151515; display: grid; place-items: center; color: var(--tenue); }
+    .srv-foto svg { width: 20px; height: 20px; }
+    .srv-txt { flex: 1; min-width: 0; }
+    .srv-txt strong { display: block; font-weight: 600; overflow-wrap: anywhere; line-height: 1.3; }
+    .srv-txt span { font-size: 13px; color: var(--suave); }
+    .srv .estado-srv { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: rgba(74, 222, 128, .1); color: #8ef0b1; white-space: nowrap; }
+    .srv .estado-srv.oculto { background: rgba(255, 255, 255, .06); color: var(--tenue); }
+    .srv .chev { color: var(--tenue); transition: transform .25s; }
+    .srv .chev svg { width: 18px; height: 18px; display: block; }
+    .srv[open] .chev { transform: rotate(180deg); }
+    .srv[open] { border-color: rgba(201, 162, 75, .45); }
+    .srv-cuerpo { padding: 4px 14px 14px; border-top: 1px solid var(--borde); padding-top: 14px; }
+    .foto-edit { display: flex; align-items: center; gap: 14px; margin: 6px 0 14px; }
+    .foto-edit img, .foto-edit .sin-foto { width: 76px; height: 76px; border-radius: 14px; border: 1px solid var(--borde-2); flex-shrink: 0; object-fit: cover; }
+    .foto-edit .sin-foto { display: grid; place-items: center; font-size: 12px; color: var(--tenue); background: #121212; text-align: center; }
+    .foto-botones { display: flex; flex-wrap: wrap; gap: 8px; }
+    .botones2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 4px; }
+    .nuevo { border: 1px dashed rgba(201, 162, 75, .4); border-radius: 16px; margin-top: 14px; }
+    .nuevo > summary { list-style: none; padding: 14px; cursor: pointer; color: var(--oro-claro); font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .nuevo > summary::-webkit-details-marker { display: none; }
+    .nuevo > summary svg { width: 18px; height: 18px; }
+    .nuevo-cuerpo { padding: 0 14px 14px; }
+    .dia-edit { background: var(--tarjeta-2); border: 1px solid var(--borde); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
+    .dia-edit .cab { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-weight: 600; }
+    .dia-edit .cuerpo { margin-top: 12px; }
+    .dia-edit .sub { font-size: 12px; color: var(--tenue); margin: 4px 0 8px; }
+    .dia-edit.cerrado .cab > span:first-child { color: var(--tenue); }
+    .ejemplo { font-size: 13px; color: var(--oro-claro); background: rgba(201, 162, 75, .08); border: 1px solid rgba(201, 162, 75, .22); border-radius: 12px; padding: 10px 12px; margin: -4px 0 14px; }
+    .guardar { margin-top: 8px; }
 
-    .toast { position: fixed; left: 16px; right: 16px; bottom: 18px; max-width: 520px; margin: 0 auto; padding: 14px 16px; border-radius: 12px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 20; }
-    .toast.visible { opacity: 1; }
-    .toast.ok { background: #12301f; border: 1px solid #1f5c3a; }
-    .toast.error { background: #3a1616; border: 1px solid #6b2525; }
-    #msgLogin { margin-top: 14px; padding: 12px; border-radius: 10px; display: none; background: #3a1616; border: 1px solid #6b2525; }
-    #msgLogin.visible { display: block; }
-    .pie { text-align: center; color: var(--suave); font-size: 12px; margin: 10px 0 0; }
-    .firma { text-align: center; color: var(--suave); font-size: 12px; padding: 6px 16px 20px; }
-    .firma strong { color: var(--acento); }
-    .firma a { color: var(--texto); }
+    /* Ventanas */
+    .modal { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .7); display: flex; align-items: flex-end; justify-content: center; padding: 12px; animation: aparecer .2s ease; }
+    .modal.encima { z-index: 70; }
+    @media (min-width: 640px) { .modal { align-items: center; } }
+    .modal-caja { width: 100%; max-width: 440px; max-height: calc(100vh - 24px); overflow-y: auto; padding: 22px 20px 20px; border-radius: 24px; background: #161616; border: 1px solid var(--borde-2); box-shadow: 0 30px 80px rgba(0, 0, 0, .7); animation: subir .3s cubic-bezier(.2, .9, .3, 1); margin-bottom: env(safe-area-inset-bottom); }
+    .modal-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 4px; }
+    .modal-cab h3 { font-size: 24px; }
+    .modal-cab .btn-icono { width: 38px; height: 38px; border-radius: 12px; }
+    .modal-caja > p { color: var(--suave); margin: 4px 0 18px; }
+        .separador { display: flex; align-items: center; gap: 12px; color: var(--tenue); font-size: 12px; margin: 14px 0; text-transform: uppercase; letter-spacing: .2em; }
+    .separador::before, .separador::after { content: ""; flex: 1; height: 1px; background: var(--borde); }
+    .modal-botones { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+    @keyframes aparecer { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes subir { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+
+    .toast {
+      position: fixed; left: 16px; right: 16px; bottom: calc(88px + env(safe-area-inset-bottom)); max-width: 520px; margin: 0 auto; z-index: 80;
+      display: flex; gap: 10px; align-items: flex-start; padding: 13px 16px; border-radius: 16px; font-size: 14.5px; font-weight: 500;
+      opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .25s, transform .25s; box-shadow: 0 18px 40px rgba(0, 0, 0, .6);
+    }
+    .toast svg { width: 19px; height: 19px; margin-top: 1px; }
+    .toast.visible { opacity: 1; transform: none; }
+    .toast.ok { background: #13281b; border: 1px solid #1f5c3a; color: #c9f2d6; }
+    .toast.error { background: #321515; border: 1px solid #6b2525; color: #f6caca; }
+    @media (min-width: 900px) { .toast { bottom: 24px; } }
+
+    .firma { text-align: center; color: var(--tenue); font-size: 12px; padding: 22px 16px 8px; }
+    .firma strong { color: var(--oro); font-weight: 600; }
+    .firma a { color: var(--suave); }
+    .vista { animation: aparecer .25s ease; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
 
-    <div class="cabecera">
-      <div>
-        <div class="etiqueta">Panel</div>
-        <h1 id="nombreNegocio">Panel</h1>
+  <!-- ============ LOGIN ============ -->
+  <main id="login" class="login">
+    <form class="tarjeta login-caja" id="formLogin" novalidate>
+      <div class="login-logo" data-icono="tijera"></div>
+      <span class="eyebrow">Panel del negocio</span>
+      <h1 id="tituloLogin">Iniciar sesión</h1>
+      <p class="nota">Entrá con el email y la contraseña del negocio.</p>
+      <label class="campo"><span>Email</span>
+        <input id="email" class="input" type="email" autocomplete="username" placeholder="tu@email.com" inputmode="email">
+      </label>
+      <label class="campo"><span>Contraseña</span>
+        <span class="con-boton">
+          <input id="clave" class="input" type="password" autocomplete="current-password" placeholder="Contraseña">
+          <button type="button" id="verClave" aria-label="Mostrar contraseña">Ver</button>
+        </span>
+      </label>
+      <label class="check-simple"><input type="checkbox" id="recordar" checked> Mantener la sesión iniciada en este dispositivo</label>
+      <button id="entrar" class="btn btn-oro btn-bloque" type="submit">Entrar</button>
+      <div id="msgLogin" class="msg-login" role="alert"></div>
+    </form>
+    <div class="firma">Sistema creado por <strong class="firmaNombre"></strong> · <a class="firmaLink" target="_blank" rel="noopener">Soporte por WhatsApp</a></div>
+  </main>
+
+  <!-- ============ PANEL ============ -->
+  <div id="panel" hidden>
+    <header class="top">
+      <div class="top-in">
+        <div class="top-marca">
+          <span class="eyebrow">Panel</span>
+          <strong id="nombreNegocio">Panel</strong>
+        </div>
+        <div class="top-acc">
+          <a href="index.html" target="_blank" rel="noopener" class="btn-icono" title="Ver la página de clientes" aria-label="Ver la página de clientes" data-icono="afuera"></a>
+          <button id="salir" class="btn btn-borde btn-chico" type="button">Salir</button>
+        </div>
       </div>
-      <button id="salir" class="chico" hidden>Salir</button>
-    </div>
+    </header>
 
-    <!-- LOGIN -->
-    <div id="login" class="tarjeta">
-      <h2>Iniciar sesión</h2>
-      <label for="email">Email</label>
-      <input id="email" type="email" autocomplete="username" placeholder="tu@email.com">
-      <label for="clave">Contraseña</label>
-      <input id="clave" type="password" autocomplete="current-password" placeholder="Contraseña">
-      <button id="entrar" class="principal">Entrar</button>
-      <div id="msgLogin"></div>
-    </div>
+    <nav class="tabs" aria-label="Secciones del panel">
+      <button class="tab activo" type="button" data-vista="vAgenda"><span data-icono="calendario"></span>Agenda</button>
+      <button class="tab" type="button" data-vista="vRecord"><span data-icono="chat"></span>Recordar<b class="badge" id="badgeRecord" hidden></b></button>
+      <button class="tab" type="button" data-vista="vPagos"><span data-icono="tarjeta"></span>Pagos<b class="badge" id="badgePagos" hidden></b></button>
+      <button class="tab" type="button" data-vista="vConfig"><span data-icono="ajustes"></span>Ajustes</button>
+    </nav>
 
-    <!-- PANEL -->
-    <div id="panel" hidden>
-
-      <div class="tabs">
-        <button class="tab activo" data-vista="vAgenda">Agenda</button>
-        <button class="tab" data-vista="vRecord">Recordar</button>
-        <button class="tab" data-vista="vPagos">Pagos</button>
-        <button class="tab" data-vista="vConfig">Config</button>
-      </div>
+    <main class="contenido">
 
       <!-- AGENDA -->
-      <div id="vAgenda">
+      <section id="vAgenda" class="vista">
         <div class="tarjeta">
-          <h2>Próximos 7 días</h2>
+          <div class="dia-nav">
+            <button id="ant" class="btn-icono" type="button" aria-label="Día anterior" data-icono="izq"></button>
+            <div class="dia-titulo">
+              <span class="eyebrow" id="diaRelativo"></span>
+              <h2 id="fechaLarga"></h2>
+            </div>
+            <button id="sig" class="btn-icono" type="button" aria-label="Día siguiente" data-icono="der"></button>
+          </div>
           <div id="semana" class="semana"></div>
+          <div class="dia-herr">
+            <input id="fecha" class="input input-chico" type="date" aria-label="Elegir fecha">
+            <button id="hoy" class="btn btn-borde btn-chico" type="button">Hoy</button>
+            <button id="actualizar" class="btn-icono" type="button" aria-label="Actualizar" title="Actualizar" data-icono="actualizar"></button>
+          </div>
+        </div>
+
+        <div class="stats" id="stats">
+          <div class="stat"><small>Turnos</small><strong id="stTurnos">—</strong><span id="stTurnosSub">&nbsp;</span></div>
+          <div class="stat"><small id="stProxEtq">Próximo</small><strong class="oro" id="stProx">—</strong><span id="stProxSub">&nbsp;</span></div>
+          <div class="stat"><small>Señas</small><strong id="stSenas">—</strong><span id="stSenasSub">&nbsp;</span></div>
+        </div>
+
+        <div class="acciones-dia">
+          <button id="abrirAgregar" class="btn btn-oro" type="button"><span data-icono="mas"></span>Agregar turno</button>
+          <button id="abrirBloquear" class="btn btn-borde" type="button"><span data-icono="candado"></span>Bloquear</button>
         </div>
 
         <div class="tarjeta">
-          <div class="nav-fecha">
-            <button id="ant" aria-label="Día anterior">◀</button>
-            <input id="fecha" type="date">
-            <button id="sig" aria-label="Día siguiente">▶</button>
-          </div>
-          <div class="nav-fecha">
-            <button id="hoy" style="flex:1">Hoy</button>
-            <button id="actualizar" style="flex:1">Actualizar</button>
-          </div>
-          <div class="titulo-dia">
-            <span id="fechaLarga" class="fecha-larga"></span>
-            <span id="total" class="total"></span>
-          </div>
-          <div id="lista"></div>
+          <div class="titulo-lista"><h2>Agenda del día</h2><span id="total" class="total"></span></div>
+          <div id="lista" class="agenda"></div>
         </div>
-
-        <div class="tarjeta">
-          <h2>Agregar turno manual</h2>
-          <label for="mNombre">Nombre del cliente</label>
-          <input id="mNombre" type="text" placeholder="Ej: Juan Pérez" maxlength="60">
-          <label for="mTelefono">WhatsApp (opcional)</label>
-          <input id="mTelefono" type="tel" inputmode="tel" placeholder="Ej: 3411234567" maxlength="20">
-          <label for="mServicio">Servicio</label>
-          <select id="mServicio"></select>
-          <label for="mHora">Hora de inicio</label>
-          <input id="mHora" type="time" step="900" value="10:00">
-          <button id="agregar" class="principal">Agregar a la agenda</button>
-          <p class="pie">Se agrega en la fecha que tengas seleccionada arriba.</p>
-        </div>
-
-        <div class="tarjeta">
-          <h2>Bloquear horario</h2>
-          <div class="fila2">
-            <div>
-              <label for="horaBloqueo">Desde</label>
-              <input id="horaBloqueo" type="time" step="900" value="10:00">
-            </div>
-            <div>
-              <label for="duracion">Duración</label>
-              <select id="duracion">
-                <option value="30">30 min</option>
-                <option value="60" selected>1 hora</option>
-                <option value="90">1 h 30</option>
-                <option value="120">2 horas</option>
-                <option value="180">3 horas</option>
-                <option value="240">4 horas</option>
-              </select>
-            </div>
-          </div>
-          <button id="bloquear" class="principal">Bloquear ese horario</button>
-          <button id="bloquearDia" class="peligro" style="width:100%; margin-top:10px">Bloquear el día completo</button>
-          <p class="pie">Se bloquea en la fecha que tengas seleccionada arriba.</p>
-        </div>
-      </div>
+      </section>
 
       <!-- RECORDATORIOS -->
-      <div id="vRecord" hidden>
+      <section id="vRecord" class="vista" hidden>
         <div class="tarjeta">
-          <h2>Recordatorios</h2>
-          <p class="nota">Tocá "Enviar recordatorio" y se abre WhatsApp con el mensaje listo (incluye el link para que el cliente cancele). Solo falta apretar enviar.</p>
-          <div class="nav-fecha">
-            <button id="rAnt" aria-label="Día anterior">◀</button>
-            <input id="rFecha" type="date">
-            <button id="rSig" aria-label="Día siguiente">▶</button>
+          <div class="dia-nav">
+            <button id="rAnt" class="btn-icono" type="button" aria-label="Día anterior" data-icono="izq"></button>
+            <div class="dia-titulo">
+              <span class="eyebrow" id="rRelativo"></span>
+              <h2 id="rFechaLarga"></h2>
+            </div>
+            <button id="rSig" class="btn-icono" type="button" aria-label="Día siguiente" data-icono="der"></button>
           </div>
-          <div class="titulo-dia">
-            <span id="rFechaLarga" class="fecha-larga"></span>
-            <span id="rPendientes" class="total"></span>
-          </div>
-          <div id="rLista"></div>
+          <div class="dia-herr"><input id="rFecha" class="input input-chico" type="date" aria-label="Elegir fecha"></div>
+          <div class="progreso"><div class="barra"><span id="rBarra"></span></div><span id="rPendientes"></span></div>
         </div>
-      </div>
+        <p class="nota">Tocá "Enviar recordatorio" y se abre WhatsApp con el mensaje listo (incluye el link para que el cliente cancele). Solo falta apretar enviar.</p>
+        <div id="rLista" class="agenda"></div>
+      </section>
 
       <!-- PAGOS -->
-      <div id="vPagos" hidden>
+      <section id="vPagos" class="vista" hidden>
+        <div class="stats" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+          <div class="stat"><small>Señas cobradas</small><strong class="oro" id="pStatCobradas">—</strong><span id="pStatCobradasSub">&nbsp;</span></div>
+          <div class="stat"><small>Para devolver</small><strong id="pStatDevolver">—</strong><span id="pStatDevolverSub">&nbsp;</span></div>
+        </div>
         <div class="tarjeta">
           <h2>Devoluciones pendientes</h2>
           <p class="nota">Son clientes que pagaron pero el turno no se realiza (cancelaron a tiempo, o pagaron cuando el horario ya no estaba). Devolvé el dinero desde tu cuenta de Mercado Pago (buscá el pago y elegí devolver; los pasos pueden variar) y después tocá "Marcar devuelto".</p>
-          <div id="pDevoluciones"></div>
+          <div id="pDevoluciones" class="agenda"></div>
         </div>
         <div class="tarjeta">
-          <h2>Señas cobradas</h2>
-          <div class="titulo-dia"><span>Próximos turnos</span><span id="pTotal" class="total"></span></div>
-          <div id="pCobradas"></div>
+          <div class="titulo-lista"><h2>Señas cobradas</h2><span id="pTotal" class="total"></span></div>
+          <p class="nota">Turnos de hoy en adelante que ya pagaron la seña.</p>
+          <div id="pCobradas" class="agenda"></div>
         </div>
-      </div>
+      </section>
 
-      <!-- CONFIGURACIÓN -->
-      <div id="vConfig" hidden>
-        <div class="tarjeta">
+      <!-- AJUSTES -->
+      <section id="vConfig" class="vista" hidden>
+        <nav class="sub-nav" aria-label="Partes de los ajustes">
+          <a href="#secServicios">Servicios</a>
+          <a href="#secHorarios">Horarios</a>
+          <a href="#secPagos">Cobro de señas</a>
+          <a href="#secDatos">Datos del negocio</a>
+          <a href="#secCuenta">Tu cuenta</a>
+        </nav>
+
+        <div class="tarjeta seccion-cfg" id="secServicios">
           <h2>Servicios</h2>
-          <p class="nota">Los cambios se ven al instante en la página de clientes. Los turnos ya reservados conservan su nombre y duración. Cada servicio puede tener su foto: tocá "Subir foto" (se achica sola para que cargue rápido).</p>
+          <p class="nota">Los cambios se ven al instante en la página de clientes. Los turnos ya reservados conservan su nombre y duración. Tocá un servicio para editarlo o subirle una foto (se achica sola para que cargue rápido).</p>
           <div id="cfgServicios"></div>
-          <h3 style="margin-top:20px">Agregar servicio</h3>
-          <div class="edit">
-            <label for="nsNombre">Nombre</label>
-            <input id="nsNombre" type="text" maxlength="60" placeholder="Ej: Corte infantil">
-            <div class="fila2">
-              <div><label for="nsPrecio">Precio ($)</label><input id="nsPrecio" type="number" min="0" step="500" inputmode="numeric"></div>
-              <div><label for="nsMinutos">Duración (min)</label><input id="nsMinutos" type="number" min="10" max="240" step="5" inputmode="numeric" value="30"></div>
+          <details class="nuevo" id="nsCaja">
+            <summary><span data-icono="mas"></span>Agregar servicio</summary>
+            <div class="nuevo-cuerpo">
+              <label class="campo"><span>Nombre</span><input id="nsNombre" class="input" type="text" maxlength="60" placeholder="Ej: Corte infantil"></label>
+              <div class="fila2">
+                <label class="campo"><span>Precio ($)</span><input id="nsPrecio" class="input" type="number" min="0" step="500" inputmode="numeric"></label>
+                <label class="campo"><span>Duración (min)</span><input id="nsMinutos" class="input" type="number" min="10" max="240" step="5" inputmode="numeric" value="30"></label>
+              </div>
+              <button id="nsAgregar" class="btn btn-oro btn-bloque" type="button">Agregar servicio</button>
             </div>
-            <button id="nsAgregar" class="principal">Agregar servicio</button>
-          </div>
+          </details>
         </div>
 
-        <div class="tarjeta">
+        <div class="tarjeta seccion-cfg" id="secHorarios">
           <h2>Horarios de atención</h2>
           <p class="nota">Elegí los días que abrís. La segunda franja es opcional (por ejemplo, el turno tarde).</p>
           <div id="cfgHorarios"></div>
-          <button id="guardarHorarios" class="principal">Guardar horarios</button>
+          <button id="guardarHorarios" class="btn btn-oro btn-bloque guardar" type="button">Guardar horarios</button>
         </div>
 
-        <div class="tarjeta">
-          <h2>Pagos con Mercado Pago</h2>
+        <div class="tarjeta seccion-cfg" id="secPagos">
+          <h2>Cobro de señas con Mercado Pago</h2>
           <p class="nota">Activalo solo cuando las funciones de Mercado Pago estén instaladas y probadas. Si lo activás sin eso, los clientes reservan pero no pueden pagar.</p>
           <div id="cfgPagos"></div>
-          <button id="guardarPagos" class="principal">Guardar pagos</button>
+          <button id="guardarPagos" class="btn btn-oro btn-bloque guardar" type="button">Guardar pagos</button>
         </div>
 
-        <div class="tarjeta">
+        <div class="tarjeta seccion-cfg" id="secDatos">
           <h2>Datos del negocio</h2>
+          <p class="nota">Lo que aparece en la página de clientes: nombre, frase de portada, contacto y reglas de reserva.</p>
           <div id="cfgAjustes"></div>
-          <button id="guardarAjustes" class="principal">Guardar datos</button>
+          <button id="guardarAjustes" class="btn btn-oro btn-bloque guardar" type="button">Guardar datos</button>
         </div>
-      </div>
 
+        <div class="tarjeta seccion-cfg" id="secCuenta">
+          <h2>Tu cuenta</h2>
+          <p class="nota">Entrás al panel con <strong id="emailCuenta">tu email</strong>. Podés cambiar la contraseña cuando quieras: la nueva solo la vas a saber vos.</p>
+          <label class="campo"><span>Contraseña nueva</span><input id="claveNueva" class="input" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres"></label>
+          <label class="campo"><span>Repetí la contraseña nueva</span><input id="claveNueva2" class="input" type="password" autocomplete="new-password"></label>
+          <button id="cambiarClave" class="btn btn-oro btn-bloque guardar" type="button">Cambiar contraseña</button>
+        </div>
+      </section>
+
+      <div class="firma">Sistema creado por <strong class="firmaNombre"></strong> · <a class="firmaLink" target="_blank" rel="noopener">Soporte por WhatsApp</a></div>
+    </main>
+  </div>
+
+  <!-- Ventana: agregar turno manual -->
+  <div class="modal" id="dlgAgregar" hidden role="dialog" aria-modal="true" aria-labelledby="tAgregar">
+    <form class="modal-caja" id="formAgregar" novalidate>
+      <div class="modal-cab"><h3 id="tAgregar">Agregar turno</h3><button type="button" class="btn-icono cerrar" aria-label="Cerrar" data-icono="cerrar"></button></div>
+      <p>Para clientes que reservan por teléfono o en persona.</p>
+      <div class="fila2">
+        <label class="campo"><span>Fecha</span><input id="mFecha" class="input" type="date"></label>
+        <label class="campo"><span>Hora de inicio</span><input id="mHora" class="input" type="time" step="900" value="10:00"></label>
+      </div>
+      <label class="campo"><span>Nombre del cliente</span><input id="mNombre" class="input" type="text" placeholder="Ej: Juan Pérez" maxlength="60"></label>
+      <label class="campo"><span>WhatsApp (opcional)</span><input id="mTelefono" class="input" type="tel" inputmode="tel" placeholder="Ej: 3411234567" maxlength="20"></label>
+      <label class="campo"><span>Servicio</span><select id="mServicio" class="input"></select></label>
+      <button id="agregar" class="btn btn-oro btn-bloque" type="submit">Agregar a la agenda</button>
+    </form>
+  </div>
+
+  <!-- Ventana: bloquear horario -->
+  <div class="modal" id="dlgBloquear" hidden role="dialog" aria-modal="true" aria-labelledby="tBloquear">
+    <form class="modal-caja" id="formBloquear" novalidate>
+      <div class="modal-cab"><h3 id="tBloquear">Bloquear horario</h3><button type="button" class="btn-icono cerrar" aria-label="Cerrar" data-icono="cerrar"></button></div>
+      <p>Mientras esté bloqueado, nadie puede reservar en ese horario.</p>
+      <label class="campo"><span>Fecha</span><input id="bFecha" class="input" type="date"></label>
+      <div class="fila2">
+        <label class="campo"><span>Desde</span><input id="horaBloqueo" class="input" type="time" step="900" value="10:00"></label>
+        <label class="campo"><span>Duración</span>
+          <select id="duracion" class="input">
+            <option value="30">30 min</option>
+            <option value="60" selected>1 hora</option>
+            <option value="90">1 h 30</option>
+            <option value="120">2 horas</option>
+            <option value="180">3 horas</option>
+            <option value="240">4 horas</option>
+          </select>
+        </label>
+      </div>
+      <button id="bloquear" class="btn btn-oro btn-bloque" type="submit">Bloquear ese horario</button>
+      <div class="separador">o</div>
+      <button id="bloquearDia" class="btn btn-peligro btn-bloque" type="button">Bloquear el día completo</button>
+    </form>
+  </div>
+
+  <!-- Ventana: confirmar -->
+  <div class="modal encima" id="dlgConfirmar" hidden role="dialog" aria-modal="true" aria-labelledby="cTitulo">
+    <div class="modal-caja">
+      <div class="modal-cab"><h3 id="cTitulo"></h3></div>
+      <p id="cTexto"></p>
+      <div class="modal-botones">
+        <button type="button" class="btn btn-borde" id="cNo">Volver</button>
+        <button type="button" class="btn btn-peligro" id="cSi">Sí</button>
+      </div>
     </div>
   </div>
 
-  <div class="firma">
-    Sistema creado por <strong id="firmaNombre"></strong> ·
-    <a id="firmaLink" target="_blank" rel="noopener">Soporte por WhatsApp</a>
-  </div>
-  <div id="toast" class="toast"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script>
     // ===== CONEXIÓN CON LA BASE DE DATOS =====
@@ -304,9 +563,11 @@
     const aFecha = iso => { const p = iso.split("-"); return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])); };
     const nombresCortos = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
     const nombresDias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
     const ORDEN_DIAS = [1, 2, 3, 4, 5, 6, 0];
     const plata = n => "$" + Number(n).toLocaleString("es-AR");
-    const horaLocal = iso => new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+    const horaLocal = iso => new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false });
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
     function el(tag, clase, texto) {
       const e = document.createElement(tag);
@@ -315,36 +576,133 @@
       return e;
     }
 
-    // Estado
-    let token = sessionStorage.getItem("token");
-    let refresco = sessionStorage.getItem("refresco");
-    let cargando = false;
+    // ---------- Íconos ----------
+    const ICONOS = {
+      calendario: '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+      chat: '<path d="M20.5 11.6a8.4 8.4 0 0 1-12.3 7.5L3.5 20.5l1.4-4.5a8.4 8.4 0 1 1 15.6-4.4z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/>',
+      tarjeta: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
+      ajustes: '<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/>',
+      tijera: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/>',
+      afuera: '<path d="M7 17L17 7M8 7h9v9"/>',
+      izq: '<path d="M15 6l-6 6 6 6"/>',
+      der: '<path d="M9 6l6 6-6 6"/>',
+      abajo: '<path d="M6 9l6 6 6-6"/>',
+      actualizar: '<path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/>',
+      mas: '<path d="M12 5v14M5 12h14"/>',
+      candado: '<rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
+      cerrar: '<path d="M6 6l12 12M18 6L6 18"/>',
+      check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+      alerta: '<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L2.4 17.5a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+      foto: '<rect x="3" y="5" width="18" height="15" rx="2.5"/><circle cx="9" cy="10.5" r="1.8"/><path d="M21 16l-5-5-8 9"/>'
+    };
+    function icono(nombre) {
+      const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      s.setAttribute("viewBox", "0 0 24 24");
+      s.setAttribute("fill", "none");
+      s.setAttribute("stroke", "currentColor");
+      s.setAttribute("stroke-width", "1.8");
+      s.setAttribute("stroke-linecap", "round");
+      s.setAttribute("stroke-linejoin", "round");
+      s.setAttribute("aria-hidden", "true");
+      s.innerHTML = ICONOS[nombre] || "";
+      return s;
+    }
+    document.querySelectorAll("[data-icono]").forEach(function (x) { x.appendChild(icono(x.dataset.icono)); });
+
+    // ---------- Estado ----------
+    let token = null, refresco = null;
+    try {
+      token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      refresco = localStorage.getItem("refresco") || sessionStorage.getItem("refresco");
+    } catch (e) { /* sin almacenamiento: hay que entrar cada vez */ }
     const S = { ajustes: null, servicios: [], horarios: [] };
     let listaRecord = [];
+    let pedidoAgenda = 0;
 
     // ---------- Avisos ----------
     function aviso(tipo, texto) {
       const t = $("toast");
       t.className = "toast " + tipo + " visible";
-      t.textContent = texto;
+      t.replaceChildren(icono(tipo === "ok" ? "check" : "alerta"), el("span", "", texto));
       clearTimeout(aviso.t);
-      aviso.t = setTimeout(function () { t.className = "toast"; }, 4000);
+      aviso.t = setTimeout(function () { t.className = "toast " + tipo; }, 4200);
     }
     function avisoLogin(texto) {
       const m = $("msgLogin");
       m.textContent = texto;
-      m.className = texto ? "visible" : "";
+      m.className = "msg-login" + (texto ? " visible" : "");
+    }
+
+    // Ventanas
+    function abrir(id) { $(id).hidden = false; document.body.classList.add("sin-scroll"); }
+    function cerrar(id) {
+      $(id).hidden = true;
+      if (!document.querySelector(".modal:not([hidden])")) document.body.classList.remove("sin-scroll");
+    }
+    document.querySelectorAll(".modal").forEach(function (m) {
+      m.addEventListener("click", function (e) { if (e.target === m && m.id !== "dlgConfirmar") cerrar(m.id); });
+      m.querySelectorAll(".cerrar").forEach(function (b) { b.onclick = function () { cerrar(m.id); }; });
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      if (!$("dlgConfirmar").hidden) return; // lo maneja la confirmación
+      ["dlgAgregar", "dlgBloquear"].forEach(function (id) { if (!$(id).hidden) cerrar(id); });
+    });
+
+    // "¿Estás seguro?" (reemplaza al confirm del navegador)
+    function preguntar(titulo, texto, textoSi, peligro) {
+      return new Promise(function (resolve) {
+        $("cTitulo").textContent = titulo;
+        $("cTexto").textContent = texto || "";
+        $("cSi").textContent = textoSi || "Sí";
+        $("cSi").className = "btn " + (peligro === false ? "btn-oro" : "btn-peligro");
+        abrir("dlgConfirmar");
+        $("cNo").focus();
+        function fin(v) {
+          cerrar("dlgConfirmar");
+          document.removeEventListener("keydown", tecla);
+          resolve(v);
+        }
+        function tecla(e) { if (e.key === "Escape") fin(false); }
+        $("cSi").onclick = function () { fin(true); };
+        $("cNo").onclick = function () { fin(false); };
+        $("dlgConfirmar").onclick = function (e) { if (e.target === $("dlgConfirmar")) fin(false); };
+        document.addEventListener("keydown", tecla);
+      });
+    }
+
+    function cargandoBoton(boton, texto) {
+      boton.dataset.texto = boton.dataset.texto || boton.textContent;
+      boton.disabled = true;
+      boton.replaceChildren(el("span", "spinner"), document.createTextNode(texto || "Guardando..."));
+    }
+    function liberarBoton(boton) {
+      boton.disabled = false;
+      if (boton.dataset.texto) boton.textContent = boton.dataset.texto;
     }
 
     // ---------- Conexión ----------
+    function almacen() {
+      try { return localStorage.getItem("recordar") === "1" ? localStorage : sessionStorage; } catch (e) { return null; }
+    }
     function guardarSesion(datos) {
       token = datos.access_token;
       refresco = datos.refresh_token || refresco;
-      sessionStorage.setItem("token", token);
-      if (refresco) sessionStorage.setItem("refresco", refresco);
+      const a = almacen();
+      if (!a) return;
+      try {
+        a.setItem("token", token);
+        if (refresco) a.setItem("refresco", refresco);
+      } catch (e) {}
     }
 
-    async function renovar() {
+    // Si varias consultas vencen juntas, se renueva la sesión una sola vez
+    let renovando = null;
+    function renovar() {
+      if (!renovando) renovando = renovarSesion().finally(function () { renovando = null; });
+      return renovando;
+    }
+    async function renovarSesion() {
       if (!refresco) return false;
       try {
         const r = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=refresh_token", {
@@ -380,11 +738,13 @@
     }
 
     // ---------- Login ----------
-    async function entrar() {
+    async function entrar(e) {
+      if (e) e.preventDefault();
       const email = $("email").value.trim();
       const clave = $("clave").value;
       if (!email || !clave) { avisoLogin("Completá el email y la contraseña."); return; }
-      $("entrar").textContent = "Entrando...";
+      const boton = $("entrar");
+      cargandoBoton(boton, "Entrando...");
       try {
         const r = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
           method: "POST",
@@ -393,25 +753,33 @@
         });
         const datos = await r.json();
         if (!r.ok || !datos.access_token) avisoLogin("Email o contraseña incorrectos.");
-        else { guardarSesion(datos); avisoLogin(""); $("clave").value = ""; mostrarPanel(); }
-      } catch (e) { avisoLogin("No hay conexión. Probá de nuevo."); }
-      $("entrar").textContent = "Entrar";
+        else {
+          try { localStorage.setItem("recordar", $("recordar").checked ? "1" : "0"); } catch (err) {}
+          guardarSesion(datos);
+          avisoLogin("");
+          $("clave").value = "";
+          mostrarPanel();
+        }
+      } catch (err) { avisoLogin("No hay conexión. Probá de nuevo."); }
+      liberarBoton(boton);
     }
 
     function salir(mensaje) {
       token = null; refresco = null;
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("refresco");
+      try {
+        ["token", "refresco"].forEach(function (k) { sessionStorage.removeItem(k); localStorage.removeItem(k); });
+      } catch (e) {}
       $("panel").hidden = true;
-      $("salir").hidden = true;
       $("login").hidden = false;
+      document.querySelectorAll(".modal").forEach(function (m) { m.hidden = true; });
+      document.body.classList.remove("sin-scroll");
       avisoLogin(mensaje || "");
     }
 
     async function mostrarPanel() {
       $("login").hidden = true;
       $("panel").hidden = false;
-      $("salir").hidden = false;
+      $("emailCuenta").textContent = emailDeSesion() || "tu email";
       if (!$("fecha").value) $("fecha").value = fechaISO(new Date());
       if (!$("rFecha").value) { const m = new Date(); m.setDate(m.getDate() + 1); $("rFecha").value = fechaISO(m); }
       await cargarConfig();
@@ -421,7 +789,12 @@
     // ---------- Pestañas ----------
     function irA(vista) {
       ["vAgenda", "vRecord", "vPagos", "vConfig"].forEach(function (v) { $(v).hidden = v !== vista; });
-      document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("activo", t.dataset.vista === vista); });
+      document.querySelectorAll(".tab").forEach(function (t) {
+        const activa = t.dataset.vista === vista;
+        t.classList.toggle("activo", activa);
+        if (activa) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current");
+      });
+      window.scrollTo(0, 0);
       if (vista === "vRecord") cargarRecord();
       if (vista === "vPagos") cargarPagos();
       if (vista === "vAgenda") cargar();
@@ -437,7 +810,25 @@
     }
     function nombreNegocio() { return S.ajustes ? S.ajustes.nombre : "el negocio"; }
     function fechaLarga(iso) {
-      return aFecha(iso).toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" });
+      const d = aFecha(iso);
+      return nombresDias[d.getDay()].toLowerCase() + " " + d.getDate() + " de " + meses[d.getMonth()];
+    }
+    function relativo(iso) {
+      const hoy = aFecha(fechaISO(new Date()));
+      const dif = Math.round((aFecha(iso) - hoy) / 86400000);
+      if (dif === 0) return "Hoy";
+      if (dif === 1) return "Mañana";
+      if (dif === -1) return "Ayer";
+      return dif > 0 ? "En " + dif + " días" : "Hace " + (-dif) + " días";
+    }
+    function limpiarNombre(n) { return String(n || "").replace("★ ", ""); }
+    function enlaceWA(texto, numero, mensaje, clase) {
+      const a = el("a", "btn btn-verde " + (clase || ""));
+      a.href = "https://wa.me/" + waNumero(numero) + "?text=" + encodeURIComponent(mensaje);
+      a.target = "_blank"; a.rel = "noopener";
+      a.appendChild(icono("chat"));
+      a.appendChild(document.createTextNode(texto));
+      return a;
     }
 
     // ---------- Configuración: cargar ----------
@@ -455,7 +846,7 @@
         S.horarios = await res[2].json();
         if (!S.ajustes) throw new Error("sin ajustes");
       } catch (e) {
-        aviso("error", "No se pudo cargar la configuración. ¿Ejecutaste el SQL de las partes 1 a 4?");
+        if (token) aviso("error", "No se pudo cargar la configuración. ¿Ejecutaste el SQL de las partes 1 a 4?");
         return;
       }
       $("nombreNegocio").textContent = S.ajustes.nombre;
@@ -479,21 +870,29 @@
 
     // ---------- Agenda ----------
     async function cargar() {
-      if (cargando || !token) return;
-      cargando = true;
+      if (!token) return;
       const fecha = $("fecha").value;
-      if (!fecha) { cargando = false; return; }
-      $("fechaLarga").textContent = fechaLarga(fecha);
+      if (!fecha) return;
+      const mio = ++pedidoAgenda;
+      $("fechaLarga").textContent = cap(fechaLarga(fecha));
+      $("diaRelativo").textContent = relativo(fecha);
+      const boton = $("actualizar");
+      boton.classList.add("girando");
       try {
         const r = await api("/rest/v1/turnos?fecha=eq." + fecha + "&estado=in.(activo,pendiente_pago)&order=hora.asc&select=id,hora,servicio,minutos,nombre,telefono,estado,pago_estado,pago_monto,vence_en,pago_nota");
         if (!r.ok) throw new Error("Error " + r.status);
-        dibujarLista(await r.json(), fecha);
+        const datos = await r.json();
+        if (mio !== pedidoAgenda) return;
+        dibujarLista(datos, fecha);
       } catch (e) {
+        if (mio !== pedidoAgenda) return;
         $("lista").replaceChildren(el("div", "vacio", 'No se pudieron cargar los turnos. Tocá "Actualizar".'));
         $("total").textContent = "";
+      } finally {
+        boton.classList.remove("girando");
       }
       await cargarSemana();
-      cargando = false;
+      actualizarAvisos();
     }
 
     async function cargarSemana() {
@@ -518,12 +917,40 @@
         const n = cuentas[iso] || 0;
         const b = el("button", "dia" + (n > 0 ? " tiene" : "") + (iso === $("fecha").value ? " activo" : ""));
         b.type = "button";
+        b.setAttribute("aria-label", fechaLarga(iso) + ": " + (n === 1 ? "1 turno" : n + " turnos"));
         b.appendChild(el("span", "nom", i === 0 ? "Hoy" : nombresCortos[d.getDay()]));
-        b.appendChild(el("span", "fec", d.getDate() + "/" + (d.getMonth() + 1)));
-        b.appendChild(el("span", "cant", n === 1 ? "1 turno" : n + " turnos"));
+        b.appendChild(el("span", "fec", String(d.getDate())));
+        b.appendChild(el("span", "cant", n ? String(n) : "·"));
         b.onclick = function () { $("fecha").value = iso; cargar(); };
         cont.appendChild(b);
       }
+    }
+
+    // Huecos libres dentro del horario de atención (para cargar turnos a mano rápido)
+    function huecosLibres(turnos, fecha) {
+      const hoyISO = fechaISO(new Date());
+      if (fecha < hoyISO) return [];
+      if (turnos.some(function (t) { return t.servicio === "BLOQUEO" && t.minutos >= 1439; })) return [];
+      const h = S.horarios.find(function (x) { return x.dia === aFecha(fecha).getDay(); });
+      const franjas = h && Array.isArray(h.franjas) ? h.franjas : [];
+      const ocupado = turnos.map(function (t) { const i = aMin(t.hora.slice(0, 5)); return [i, i + t.minutos]; })
+        .sort(function (a, b) { return a[0] - b[0]; });
+      const ahora = new Date();
+      const desdeAhora = fecha === hoyISO ? Math.ceil((ahora.getHours() * 60 + ahora.getMinutes()) / 5) * 5 : 0;
+      const activos = S.servicios.filter(function (s) { return s.activo; }).map(function (s) { return s.minutos; });
+      const minimo = activos.length ? Math.min.apply(null, activos) : 15;
+      const huecos = [];
+      franjas.forEach(function (f) {
+        let cursor = Math.max(aMin(f[0]), desdeAhora);
+        const fin = aMin(f[1]);
+        ocupado.forEach(function (o) {
+          if (o[1] <= cursor || o[0] >= fin) return;
+          if (o[0] > cursor) huecos.push([cursor, Math.min(o[0], fin)]);
+          cursor = Math.max(cursor, o[1]);
+        });
+        if (cursor < fin) huecos.push([cursor, fin]);
+      });
+      return huecos.filter(function (x) { return x[1] - x[0] >= minimo; });
     }
 
     function dibujarLista(turnos, fecha) {
@@ -534,44 +961,130 @@
       const reales = turnos.filter(function (t) { return t.servicio !== "BLOQUEO" && t.estado === "activo"; });
       const esperando = turnos.filter(function (t) { return t.estado === "pendiente_pago"; }).length;
       $("total").textContent = (reales.length === 1 ? "1 turno" : reales.length + " turnos") + (esperando ? " · " + esperando + " esperando pago" : "");
-      if (turnos.length === 0) { lista.appendChild(el("div", "vacio", "No hay turnos ni bloqueos para este día.")); return; }
+      dibujarNumeros(turnos, reales, esperando, fecha);
 
-      turnos.forEach(function (t) {
-        const inicio = aMin(t.hora.slice(0, 5));
-        const esBloqueo = t.servicio === "BLOQUEO";
-        const esManual = t.nombre.indexOf("★") === 0;
-        const nombre = t.nombre.replace("★ ", "");
+      const esHoy = fecha === fechaISO(new Date());
+      const ahora = new Date();
+      const minAhora = ahora.getHours() * 60 + ahora.getMinutes();
+      const items = [];
+      turnos.forEach(function (t) { items.push({ tipo: "turno", inicio: aMin(t.hora.slice(0, 5)), t: t }); });
+      huecosLibres(turnos, fecha).forEach(function (h) { items.push({ tipo: "libre", inicio: h[0], fin: h[1] }); });
+      items.sort(function (a, b) { return a.inicio - b.inicio || (a.tipo === "libre" ? 1 : -1); });
 
-        const espera = t.estado === "pendiente_pago";
-        const caja = el("div", "turno" + (esBloqueo ? " bloqueo" : "") + (esManual ? " manual" : "") + (espera ? " espera" : ""));
-        const info = el("div");
-        info.appendChild(el("div", "hora", (esBloqueo && t.minutos >= 1439) ? "Todo el día" : aTexto(inicio) + " a " + aTexto(inicio + t.minutos)));
-        info.appendChild(el("div", "detalle", esBloqueo ? "Horario bloqueado" : nombre + " · " + t.servicio + (esManual ? " (cargado a mano)" : "")));
-        if (!esBloqueo && t.telefono) info.appendChild(el("div", "detalle", "WhatsApp: " + t.telefono));
+      if (!items.length) {
+        const v = el("div", "vacio");
+        const h = S.horarios.find(function (x) { return x.dia === aFecha(fecha).getDay(); });
+        v.appendChild(el("strong", "", h && h.franjas && h.franjas.length ? "Sin turnos" : "Día cerrado"));
+        v.appendChild(document.createTextNode("No hay turnos ni bloqueos para este día."));
+        lista.appendChild(v);
+        return;
+      }
+
+      let marcaPuesta = !esHoy;
+      items.forEach(function (it) {
+        if (!marcaPuesta && it.inicio >= minAhora) {
+          lista.appendChild(marcaAhora(minAhora));
+          marcaPuesta = true;
+        }
+        lista.appendChild(it.tipo === "libre" ? filaLibre(it, fecha) : filaTurno(it.t, fecha, esHoy, minAhora));
+      });
+      if (!marcaPuesta) lista.appendChild(marcaAhora(minAhora));
+    }
+
+    function marcaAhora(min) {
+      const m = el("div", "ahora");
+      m.appendChild(el("span", "", aTexto(min)));
+      m.appendChild(el("i"));
+      m.setAttribute("aria-label", "Hora actual");
+      return m;
+    }
+
+    function filaLibre(it, fecha) {
+      const fila = el("div", "item libre");
+      const h = el("div", "item-hora");
+      h.appendChild(el("strong", "", aTexto(it.inicio)));
+      fila.appendChild(h);
+      const b = el("button", "item-caja libre-caja");
+      b.type = "button";
+      b.appendChild(el("span", "", "Libre de " + aTexto(it.inicio) + " a " + aTexto(it.fin)));
+      b.appendChild(el("span", "mas", "+ Agregar"));
+      b.onclick = function () { abrirAgregar(fecha, aTexto(it.inicio)); };
+      fila.appendChild(b);
+      return fila;
+    }
+
+    function filaTurno(t, fecha, esHoy, minAhora) {
+      const inicio = aMin(t.hora.slice(0, 5));
+      const esBloqueo = t.servicio === "BLOQUEO";
+      const esManual = t.nombre.indexOf("★") === 0;
+      const nombre = limpiarNombre(t.nombre);
+      const espera = t.estado === "pendiente_pago";
+      const diaEntero = esBloqueo && t.minutos >= 1439;
+      const pasado = fecha < fechaISO(new Date()) || (esHoy && inicio + t.minutos <= minAhora);
+
+      const fila = el("div", "item" + (esBloqueo ? " bloqueo" : "") + (esManual ? " manual" : "") + (espera ? " espera" : "") + (pasado ? " pasado" : ""));
+      const h = el("div", "item-hora");
+      h.appendChild(el("strong", "", diaEntero ? "Todo" : aTexto(inicio)));
+      h.appendChild(el("small", "", diaEntero ? "el día" : aTexto(inicio + t.minutos)));
+      fila.appendChild(h);
+
+      const caja = el("div", "item-caja");
+      const info = el("div");
+      if (esBloqueo) {
+        info.appendChild(el("div", "item-nombre", diaEntero ? "Día completo bloqueado" : "Horario bloqueado"));
+        if (!diaEntero) info.appendChild(el("div", "item-det", aTexto(inicio) + " a " + aTexto(inicio + t.minutos)));
+      } else {
+        const n = el("div", "item-nombre", nombre);
+        if (esManual) n.appendChild(el("span", "tag manual", "A mano"));
+        info.appendChild(n);
+        info.appendChild(el("div", "item-det", t.servicio + " · " + t.minutos + " min"));
+        if (t.telefono) info.appendChild(el("div", "item-det", "WhatsApp: " + t.telefono));
         if (espera) info.appendChild(el("span", "tag espera", "⏳ Esperando pago de " + plata(t.pago_monto) + " · vence " + horaLocal(t.vence_en)));
         else if (t.pago_estado === "pagado") info.appendChild(el("span", "tag pagado", "✓ Seña pagada " + plata(t.pago_monto)));
         else if (t.pago_estado === "reembolsar") info.appendChild(el("span", "tag devolver", "⚠ Devolver " + plata(t.pago_monto)));
+      }
+      caja.appendChild(info);
 
-        const acc = el("div", "acciones");
-        if (!esBloqueo && t.telefono) {
-          const wa = el("a", "btn-wa", "WhatsApp");
-          const msg = "Hola " + nombre + "! Te escribimos de " + nombreNegocio() + " por tu turno de " + t.servicio + " el " + fechaLarga(fecha) + " a las " + t.hora.slice(0, 5) + ".";
-          wa.href = "https://wa.me/" + waNumero(t.telefono) + "?text=" + encodeURIComponent(msg);
-          wa.target = "_blank"; wa.rel = "noopener";
-          acc.appendChild(wa);
-        }
-        const b = el("button", "peligro chico", esBloqueo ? "Quitar" : "Cancelar");
-        b.onclick = function () { cancelar(t, esBloqueo, nombre); };
-        acc.appendChild(b);
+      const acc = el("div", "item-acc");
+      if (!esBloqueo && t.telefono) {
+        const msg = "Hola " + nombre + "! Te escribimos de " + nombreNegocio() + " por tu turno de " + t.servicio + " el " + fechaLarga(fecha) + " a las " + t.hora.slice(0, 5) + ".";
+        acc.appendChild(enlaceWA("WhatsApp", t.telefono, msg));
+      }
+      const b = el("button", "btn btn-peligro", esBloqueo ? "Quitar" : "Cancelar");
+      b.type = "button";
+      b.onclick = function () { cancelar(t, esBloqueo, nombre); };
+      acc.appendChild(b);
+      caja.appendChild(acc);
+      fila.appendChild(caja);
+      return fila;
+    }
 
-        caja.appendChild(info);
-        caja.appendChild(acc);
-        lista.appendChild(caja);
-      });
+    function dibujarNumeros(turnos, reales, esperando, fecha) {
+      $("stTurnos").textContent = reales.length;
+      $("stTurnosSub").textContent = esperando ? "+ " + esperando + " en espera" : (reales.length === 1 ? "turno" : "turnos");
+      const senas = reales.filter(function (t) { return t.pago_estado === "pagado"; });
+      const suma = senas.reduce(function (a, t) { return a + Number(t.pago_monto || 0); }, 0);
+      $("stSenas").textContent = suma ? plata(suma) : "$0";
+      $("stSenasSub").textContent = senas.length ? (senas.length === 1 ? "1 seña" : senas.length + " señas") : "sin señas";
+      const esHoy = fecha === fechaISO(new Date());
+      const ahora = new Date();
+      const minAhora = ahora.getHours() * 60 + ahora.getMinutes();
+      const lista = reales.filter(function (t) { return !esHoy || aMin(t.hora.slice(0, 5)) >= minAhora; });
+      $("stProxEtq").textContent = esHoy ? "Próximo" : "Primero";
+      if (lista.length) {
+        $("stProx").textContent = lista[0].hora.slice(0, 5);
+        $("stProxSub").textContent = limpiarNombre(lista[0].nombre);
+      } else {
+        $("stProx").textContent = "—";
+        $("stProxSub").textContent = esHoy && reales.length ? "no quedan más" : "sin turnos";
+      }
     }
 
     async function cancelar(t, esBloqueo, nombre) {
-      if (!confirm(esBloqueo ? "¿Quitar este bloqueo?" : "¿Cancelar el turno de " + nombre + "?")) return;
+      const ok = await preguntar(esBloqueo ? "¿Quitar este bloqueo?" : "¿Cancelar el turno de " + nombre + "?",
+        esBloqueo ? "El horario vuelve a quedar disponible para reservar." : t.servicio + " · " + fechaLarga($("fecha").value) + " a las " + t.hora.slice(0, 5) + ".",
+        esBloqueo ? "Sí, quitar" : "Sí, cancelar");
+      if (!ok) return;
       const cambios = { estado: "cancelado" };
       if (t.pago_estado === "pagado") cambios.pago_estado = "reembolsar";
       else if (t.pago_estado === "pendiente") cambios.pago_estado = "sin_pago";
@@ -595,34 +1108,63 @@
         if (r.status === 409) { aviso("error", "Ese horario ya está ocupado o bloqueado. Revisá la lista."); return false; }
         if (!r.ok) throw new Error();
         aviso("ok", textoOk);
+        if ($("fecha").value !== datos.fecha) $("fecha").value = datos.fecha;
         cargar();
         return true;
       } catch (e) { aviso("error", "No se pudo guardar. Probá de nuevo."); return false; }
     }
 
-    async function agregarManual() {
+    function abrirAgregar(fecha, hora) {
+      $("mFecha").value = fecha || $("fecha").value;
+      if (hora) $("mHora").value = hora;
+      if (!S.servicios.some(function (x) { return x.activo; })) {
+        aviso("error", "Primero cargá un servicio en Ajustes.");
+        return;
+      }
+      abrir("dlgAgregar");
+    }
+
+    async function agregarManual(e) {
+      if (e) e.preventDefault();
       const nombre = $("mNombre").value.trim();
       const hora = $("mHora").value;
+      const fecha = $("mFecha").value;
       const tel = $("mTelefono").value.replace(/\D/g, "");
       const servicio = S.servicios.find(function (x) { return String(x.id) === $("mServicio").value; });
       if (!nombre) { aviso("error", "Escribí el nombre del cliente."); return; }
+      if (!fecha) { aviso("error", "Elegí la fecha."); return; }
       if (!hora) { aviso("error", "Elegí la hora."); return; }
-      if (!servicio) { aviso("error", "Primero cargá un servicio en Configuración."); return; }
-      const datos = { fecha: $("fecha").value, hora: hora, servicio: servicio.nombre, minutos: servicio.minutos, nombre: "★ " + nombre };
+      if (!servicio) { aviso("error", "Primero cargá un servicio en Ajustes."); return; }
+      const datos = { fecha: fecha, hora: hora, servicio: servicio.nombre, minutos: servicio.minutos, nombre: "★ " + nombre };
       if (tel) datos.telefono = tel;
+      const boton = $("agregar");
+      cargandoBoton(boton, "Agregando...");
       const ok = await crear(datos, "Turno agregado a la agenda.");
-      if (ok) { $("mNombre").value = ""; $("mTelefono").value = ""; }
+      liberarBoton(boton);
+      if (ok) { $("mNombre").value = ""; $("mTelefono").value = ""; cerrar("dlgAgregar"); }
     }
 
-    function bloquearHorario() {
+    function abrirBloquear() {
+      $("bFecha").value = $("fecha").value;
+      abrir("dlgBloquear");
+    }
+
+    async function bloquearHorario(e) {
+      if (e) e.preventDefault();
       const hora = $("horaBloqueo").value;
+      const fecha = $("bFecha").value;
+      if (!fecha) { aviso("error", "Elegí la fecha."); return; }
       if (!hora) { aviso("error", "Elegí la hora de inicio."); return; }
-      crear({ fecha: $("fecha").value, hora: hora, servicio: "BLOQUEO", minutos: Number($("duracion").value), nombre: "Bloqueado" }, "Horario bloqueado.");
+      const ok = await crear({ fecha: fecha, hora: hora, servicio: "BLOQUEO", minutos: Number($("duracion").value), nombre: "Bloqueado" }, "Horario bloqueado.");
+      if (ok) cerrar("dlgBloquear");
     }
 
-    function bloquearDia() {
-      if (!confirm("¿Bloquear todo el día " + $("fecha").value + "?")) return;
-      crear({ fecha: $("fecha").value, hora: "00:00", servicio: "BLOQUEO", minutos: 1439, nombre: "Bloqueado" }, "Día completo bloqueado.");
+    async function bloquearDia() {
+      const fecha = $("bFecha").value;
+      if (!fecha) { aviso("error", "Elegí la fecha."); return; }
+      if (!await preguntar("¿Bloquear todo el día?", "Nadie va a poder reservar el " + fechaLarga(fecha) + ". Los turnos que ya estén reservados no se borran.", "Sí, bloquear")) return;
+      const ok = await crear({ fecha: fecha, hora: "00:00", servicio: "BLOQUEO", minutos: 1439, nombre: "Bloqueado" }, "Día completo bloqueado.");
+      if (ok) cerrar("dlgBloquear");
     }
 
     function mover(inputId, delta, despues) {
@@ -632,11 +1174,31 @@
       despues();
     }
 
+    // ---------- Avisos en las pestañas ----------
+    function ponerBadge(id, n) {
+      $(id).textContent = n > 9 ? "9+" : String(n);
+      $(id).hidden = !n;
+    }
+    async function actualizarAvisos() {
+      if (!token) return;
+      try {
+        const r = await api("/rest/v1/turnos?pago_estado=eq.reembolsar&select=id");
+        if (r.ok) ponerBadge("badgePagos", (await r.json()).length);
+      } catch (e) {}
+      try {
+        const m = new Date();
+        m.setDate(m.getDate() + 1);
+        const r = await api("/rest/v1/turnos?fecha=eq." + fechaISO(m) + "&estado=eq.activo&servicio=neq.BLOQUEO&select=telefono,recordatorio_enviado");
+        if (r.ok) ponerBadge("badgeRecord", (await r.json()).filter(function (t) { return t.telefono && !t.recordatorio_enviado; }).length);
+      } catch (e) {}
+    }
+
     // ---------- Recordatorios ----------
     async function cargarRecord() {
       const fecha = $("rFecha").value;
       if (!fecha || !token) return;
-      $("rFechaLarga").textContent = fechaLarga(fecha);
+      $("rFechaLarga").textContent = cap(fechaLarga(fecha));
+      $("rRelativo").textContent = relativo(fecha);
       try {
         const r = await api("/rest/v1/turnos?fecha=eq." + fecha + "&estado=eq.activo&servicio=neq.BLOQUEO&order=hora.asc&select=id,hora,servicio,minutos,nombre,telefono,token,recordatorio_enviado");
         if (!r.ok) throw new Error();
@@ -651,30 +1213,45 @@
       const fecha = $("rFecha").value;
       const lista = $("rLista");
       lista.replaceChildren();
-      const pendientes = listaRecord.filter(function (t) { return t.telefono && !t.recordatorio_enviado; }).length;
-      $("rPendientes").textContent = pendientes === 1 ? "1 pendiente" : pendientes + " pendientes";
-      if (!listaRecord.length) { lista.appendChild(el("div", "vacio", "No hay turnos para este día.")); return; }
+      const conTel = listaRecord.filter(function (t) { return t.telefono; });
+      const pendientes = conTel.filter(function (t) { return !t.recordatorio_enviado; }).length;
+      const enviados = conTel.length - pendientes;
+      $("rPendientes").textContent = conTel.length ? enviados + " de " + conTel.length + " enviados" : "Sin recordatorios";
+      $("rBarra").style.width = conTel.length ? Math.round(enviados / conTel.length * 100) + "%" : "0";
+      if (!listaRecord.length) {
+        const v = el("div", "tarjeta vacio");
+        v.appendChild(el("strong", "", "Nada para recordar"));
+        v.appendChild(document.createTextNode("No hay turnos para este día."));
+        lista.appendChild(v);
+        return;
+      }
 
       const base = new URL("index.html", location.href).href;
       listaRecord.forEach(function (t) {
-        const nombre = t.nombre.replace("★ ", "");
-        const caja = el("div", "turno");
+        const nombre = limpiarNombre(t.nombre);
+        const fila = el("div", "item" + (t.recordatorio_enviado ? " pasado" : ""));
+        const h = el("div", "item-hora");
+        h.appendChild(el("strong", "", t.hora.slice(0, 5)));
+        fila.appendChild(h);
+        const caja = el("div", "item-caja");
         const info = el("div");
-        info.appendChild(el("div", "hora", t.hora.slice(0, 5)));
-        info.appendChild(el("div", "detalle", nombre + " · " + t.servicio));
-        if (!t.telefono) info.appendChild(el("div", "detalle", "Sin teléfono: avisale de otra forma."));
+        info.appendChild(el("div", "item-nombre", nombre));
+        info.appendChild(el("div", "item-det", t.servicio));
+        if (!t.telefono) info.appendChild(el("div", "item-det", "Sin teléfono: avisale de otra forma."));
+        else if (t.recordatorio_enviado) info.appendChild(el("span", "tag enviado", "✓ Recordatorio enviado"));
         caja.appendChild(info);
 
         if (t.telefono) {
+          const acc = el("div", "item-acc");
           const msg = "Hola " + nombre + "! Te recordamos tu turno en " + nombreNegocio() + ": " + t.servicio + ", " + fechaLarga(fecha) + " a las " + t.hora.slice(0, 5) +
             ". Si no podés venir, cancelalo acá así otra persona puede tomarlo: " + base + "?turno=" + t.token;
-          const wa = el("a", "btn-wa" + (t.recordatorio_enviado ? " hecho" : ""), t.recordatorio_enviado ? "✓ Enviado (reenviar)" : "Enviar recordatorio");
-          wa.href = "https://wa.me/" + waNumero(t.telefono) + "?text=" + encodeURIComponent(msg);
-          wa.target = "_blank"; wa.rel = "noopener";
+          const wa = enlaceWA(t.recordatorio_enviado ? "Reenviar" : "Enviar recordatorio", t.telefono, msg, t.recordatorio_enviado ? "hecho" : "");
           wa.onclick = function () { marcarEnviado(t); };
-          caja.appendChild(wa);
+          acc.appendChild(wa);
+          caja.appendChild(acc);
         }
-        lista.appendChild(caja);
+        fila.appendChild(caja);
+        lista.appendChild(fila);
       });
     }
 
@@ -684,7 +1261,7 @@
         const r = await api("/rest/v1/turnos?id=eq." + t.id, {
           method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify({ recordatorio_enviado: true })
         });
-        if (r.ok) { t.recordatorio_enviado = true; dibujarRecord(); }
+        if (r.ok) { t.recordatorio_enviado = true; dibujarRecord(); actualizarAvisos(); }
       } catch (e) { /* no pasa nada: se puede volver a marcar */ }
     }
 
@@ -732,9 +1309,7 @@
 
     async function subirFoto(s, file, boton) {
       if (!/^image\//.test(file.type)) { aviso("error", "Elegí una imagen (JPG, PNG o WEBP)."); return; }
-      const textoOriginal = boton.textContent;
-      boton.disabled = true;
-      boton.textContent = "Subiendo...";
+      cargandoBoton(boton, "Subiendo...");
       try {
         let blob;
         try { blob = await reducirImagen(file); }
@@ -754,17 +1329,17 @@
         if (!p.ok) throw new Error("guardar");
         borrarObjeto(s.foto_url);
         aviso("ok", "Foto subida. Ya se ve en la página de clientes.");
+        abiertos[s.id] = true;
         await cargarConfig();
         return;
       } catch (e) {
         aviso("error", e.message === "grande" ? "La foto es muy pesada. Probá con otra." : "No se pudo subir la foto. Probá de nuevo.");
       }
-      boton.disabled = false;
-      boton.textContent = textoOriginal;
+      liberarBoton(boton);
     }
 
     async function quitarFoto(s) {
-      if (!confirm("¿Quitar la foto de \"" + s.nombre + "\"?")) return;
+      if (!await preguntar("¿Quitar la foto?", "Se saca la foto de \"" + s.nombre + "\" de la página de clientes.", "Sí, quitar")) return;
       try {
         const r = await api("/rest/v1/servicios?id=eq." + s.id, {
           method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify({ foto_url: "" })
@@ -772,6 +1347,7 @@
         if (!r.ok) throw new Error();
         borrarObjeto(s.foto_url);
         aviso("ok", "Foto quitada.");
+        abiertos[s.id] = true;
         await cargarConfig();
       } catch (e) { aviso("error", "No se pudo quitar la foto."); }
     }
@@ -794,30 +1370,36 @@
     }
 
     function filaPago(t, conBoton) {
-      const caja = el("div", "turno" + (conBoton ? " espera" : ""));
+      const nombre = limpiarNombre(t.nombre);
+      const fila = el("div", "item" + (conBoton ? " espera" : ""));
+      const h = el("div", "item-hora");
+      const d = aFecha(t.fecha);
+      h.appendChild(el("strong", "", d.getDate() + "/" + (d.getMonth() + 1)));
+      h.appendChild(el("small", "", t.hora.slice(0, 5)));
+      fila.appendChild(h);
+      const caja = el("div", "item-caja");
       const info = el("div");
-      info.appendChild(el("div", "hora", fechaLarga(t.fecha) + " · " + t.hora.slice(0, 5)));
-      info.appendChild(el("div", "detalle", t.nombre.replace("★ ", "") + " · " + t.servicio));
-      info.appendChild(el("span", "tag " + (conBoton ? "devolver" : "pagado"), plata(t.pago_monto)));
-      if (t.pago_nota) info.appendChild(el("div", "detalle", t.pago_nota));
+      info.appendChild(el("div", "item-nombre", nombre));
+      info.appendChild(el("div", "item-det", t.servicio + " · " + fechaLarga(t.fecha)));
+      info.appendChild(el("span", "tag " + (conBoton ? "devolver" : "pagado"), (conBoton ? "Devolver " : "✓ Pagó ") + plata(t.pago_monto)));
+      if (t.pago_nota) info.appendChild(el("div", "item-det", t.pago_nota));
       caja.appendChild(info);
-      const acc = el("div", "acciones");
+      const acc = el("div", "item-acc");
       if (t.telefono) {
-        const wa = el("a", "btn-wa", "WhatsApp");
         const msg = conBoton
-          ? "Hola " + t.nombre.replace("★ ", "") + "! Te escribimos de " + nombreNegocio() + " para devolverte la seña de " + plata(t.pago_monto) + " de tu turno del " + fechaLarga(t.fecha) + "."
-          : "Hola " + t.nombre.replace("★ ", "") + "! Te escribimos de " + nombreNegocio() + " por tu turno del " + fechaLarga(t.fecha) + " a las " + t.hora.slice(0, 5) + ".";
-        wa.href = "https://wa.me/" + waNumero(t.telefono) + "?text=" + encodeURIComponent(msg);
-        wa.target = "_blank"; wa.rel = "noopener";
-        acc.appendChild(wa);
+          ? "Hola " + nombre + "! Te escribimos de " + nombreNegocio() + " para devolverte la seña de " + plata(t.pago_monto) + " de tu turno del " + fechaLarga(t.fecha) + "."
+          : "Hola " + nombre + "! Te escribimos de " + nombreNegocio() + " por tu turno del " + fechaLarga(t.fecha) + " a las " + t.hora.slice(0, 5) + ".";
+        acc.appendChild(enlaceWA("WhatsApp", t.telefono, msg));
       }
       if (conBoton) {
-        const b = el("button", "chico", "Marcar devuelto");
+        const b = el("button", "btn btn-borde", "Marcar devuelto");
+        b.type = "button";
         b.onclick = function () { marcarDevuelto(t); };
         acc.appendChild(b);
       }
-      caja.appendChild(acc);
-      return caja;
+      if (acc.children.length) caja.appendChild(acc);
+      fila.appendChild(caja);
+      return fila;
     }
 
     function dibujarPagos(devoluciones, cobradas) {
@@ -828,11 +1410,17 @@
       if (!cobradas.length) c.appendChild(el("div", "vacio", "Todavía no hay señas cobradas para turnos futuros."));
       cobradas.forEach(function (t) { c.appendChild(filaPago(t, false)); });
       const suma = cobradas.reduce(function (a, t) { return a + Number(t.pago_monto); }, 0);
+      const aDevolver = devoluciones.reduce(function (a, t) { return a + Number(t.pago_monto); }, 0);
       $("pTotal").textContent = cobradas.length ? plata(suma) + " en " + cobradas.length + (cobradas.length === 1 ? " turno" : " turnos") : "";
+      $("pStatCobradas").textContent = plata(suma);
+      $("pStatCobradasSub").textContent = cobradas.length === 1 ? "1 turno próximo" : cobradas.length + " turnos próximos";
+      $("pStatDevolver").textContent = String(devoluciones.length);
+      $("pStatDevolverSub").textContent = devoluciones.length ? plata(aDevolver) + " en total" : "todo al día";
+      ponerBadge("badgePagos", devoluciones.length);
     }
 
     async function marcarDevuelto(t) {
-      if (!confirm("¿Ya devolviste " + plata(t.pago_monto) + " a " + t.nombre.replace("★ ", "") + " desde Mercado Pago?")) return;
+      if (!await preguntar("¿Ya devolviste la seña?", "Confirmá que devolviste " + plata(t.pago_monto) + " a " + limpiarNombre(t.nombre) + " desde Mercado Pago.", "Sí, ya la devolví", false)) return;
       try {
         const r = await api("/rest/v1/turnos?id=eq." + t.id, {
           method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify({ pago_estado: "reembolsado" })
@@ -846,6 +1434,33 @@
     // ---------- Configuración: pagos ----------
     let refsPagos = {};
 
+    function campo(etiqueta, input, ayuda) {
+      const d = el("label", "campo");
+      d.appendChild(el("span", "", etiqueta));
+      d.appendChild(input);
+      const cont = el("div");
+      cont.appendChild(d);
+      if (ayuda) cont.appendChild(el("p", "ayuda", ayuda));
+      return cont;
+    }
+    function interruptor(texto, marcado) {
+      const lab = el("label", "switch");
+      const i = el("input", "sr");
+      i.type = "checkbox";
+      i.checked = !!marcado;
+      lab.appendChild(i);
+      lab.appendChild(el("span", "pista"));
+      lab.appendChild(document.createTextNode(texto));
+      return { label: lab, input: i };
+    }
+    function entrada(tipo, valor, attrs) {
+      const i = el(tipo === "textarea" ? "textarea" : "input", "input");
+      if (tipo !== "textarea") i.type = tipo;
+      if (valor !== undefined && valor !== null) i.value = valor;
+      Object.keys(attrs || {}).forEach(function (k) { i[k] = attrs[k]; });
+      return i;
+    }
+
     function renderCfgPagos() {
       const a = S.ajustes;
       const cont = $("cfgPagos");
@@ -858,28 +1473,36 @@
       }
       $("guardarPagos").hidden = false;
 
-      const activo = el("input"); activo.type = "checkbox"; activo.checked = !!a.pagos_activos;
-      const lab = el("label", "check"); lab.appendChild(activo); lab.appendChild(document.createTextNode("Cobrar seña al reservar"));
-      cont.appendChild(lab);
-      refsPagos.pagos_activos = activo;
+      const sw = interruptor("Cobrar seña al reservar", a.pagos_activos);
+      const fila = el("div");
+      fila.style.margin = "4px 0 18px";
+      fila.appendChild(sw.label);
+      cont.appendChild(fila);
+      refsPagos.pagos_activos = sw.input;
 
-      const pct = el("input"); pct.type = "number"; pct.min = 10; pct.max = 100; pct.value = a.pago_porcentaje;
+      const pct = entrada("number", a.pago_porcentaje, { min: 10, max: 100, inputMode: "numeric" });
       refsPagos.pago_porcentaje = pct;
-      const d1 = campo("Porcentaje del precio que se cobra", pct);
-      d1.appendChild(el("p", "nota", "30 = una seña del 30%. 100 = se cobra el total. Ejemplo: en un servicio de $8.000, con 30% la seña es $2.400."));
-      cont.appendChild(d1);
+      cont.appendChild(campo("Porcentaje del precio que se cobra", pct));
+      const ejemplo = el("p", "ejemplo");
+      function actualizarEjemplo() {
+        const s = S.servicios.find(function (x) { return x.activo; });
+        const precio = s ? Number(s.precio) : 8000;
+        const p = Number(pct.value);
+        ejemplo.textContent = p >= 10 && p <= 100
+          ? (p >= 100 ? "Se cobra el total: " : "Ejemplo: en " + (s ? "\"" + s.nombre + "\" (" + plata(precio) + ")" : "un servicio de " + plata(precio)) + ", la seña sería ") + plata(Math.ceil(precio * p / 100)) + "."
+          : "Poné un número entre 10 y 100. 30 = una seña del 30%. 100 = se cobra el total.";
+      }
+      pct.addEventListener("input", actualizarEjemplo);
+      actualizarEjemplo();
+      cont.appendChild(ejemplo);
 
-      const ret = el("input"); ret.type = "number"; ret.min = 5; ret.max = 60; ret.value = a.pago_retencion_min;
+      const ret = entrada("number", a.pago_retencion_min, { min: 5, max: 60, inputMode: "numeric" });
       refsPagos.pago_retencion_min = ret;
-      const d2 = campo("Minutos que se retiene el horario para pagar", ret);
-      d2.appendChild(el("p", "nota", "Si el cliente no paga en ese tiempo, el horario se libera solo."));
-      cont.appendChild(d2);
+      cont.appendChild(campo("Minutos que se retiene el horario para pagar", ret, "Si el cliente no paga en ese tiempo, el horario se libera solo."));
 
-      const pol = el("textarea"); pol.value = a.pago_politica || "";
+      const pol = entrada("textarea", a.pago_politica || "");
       refsPagos.pago_politica = pol;
-      const d3 = campo("Política de devolución de la seña", pol);
-      d3.appendChild(el("p", "nota", "Se muestra al cliente cuando cancela un turno pagado. Revisala y ajustala a lo que decida el negocio."));
-      cont.appendChild(d3);
+      cont.appendChild(campo("Política de devolución de la seña", pol, "Se muestra al cliente cuando cancela un turno pagado. Revisala y ajustala a lo que decida el negocio."));
     }
 
     async function guardarPagos() {
@@ -888,7 +1511,9 @@
       const ret = Number(refsPagos.pago_retencion_min.value);
       if (!(pct >= 10 && pct <= 100)) { aviso("error", "El porcentaje tiene que estar entre 10 y 100."); return; }
       if (!(ret >= 5 && ret <= 60)) { aviso("error", "La retención tiene que estar entre 5 y 60 minutos."); return; }
-      if (activo && !S.ajustes.pagos_activos && !confirm("¿Activar los pagos? A partir de ahora los clientes tendrán que pagar para confirmar. Hacelo solo si Mercado Pago ya está instalado y probado.")) return;
+      if (activo && !S.ajustes.pagos_activos && !await preguntar("¿Activar los pagos?", "A partir de ahora los clientes tendrán que pagar para confirmar. Hacelo solo si Mercado Pago ya está instalado y probado.", "Sí, activar", false)) return;
+      const boton = $("guardarPagos");
+      cargandoBoton(boton);
       try {
         const r = await api("/rest/v1/ajustes?id=eq.1", {
           method: "PATCH", headers: { "Prefer": "return=minimal" },
@@ -898,34 +1523,55 @@
         aviso("ok", activo ? "Pagos guardados y ACTIVADOS." : "Pagos guardados (apagados).");
         await cargarConfig();
       } catch (e) { aviso("error", "No se pudieron guardar los pagos."); }
+      liberarBoton(boton);
     }
 
     // ---------- Configuración: servicios ----------
-    function campo(etiqueta, input) {
-      const d = el("div");
-      d.appendChild(el("label", "", etiqueta));
-      d.appendChild(input);
-      return d;
-    }
+    const abiertos = {};
 
     function renderCfgServicios() {
       const cont = $("cfgServicios");
       cont.replaceChildren();
       if (!S.servicios.length) cont.appendChild(el("div", "vacio", "Todavía no hay servicios. Agregá el primero abajo."));
       S.servicios.forEach(function (s) {
-        const caja = el("div", "edit");
-        const nombre = el("input"); nombre.type = "text"; nombre.maxLength = 60; nombre.value = s.nombre;
-        const precio = el("input"); precio.type = "number"; precio.min = 0; precio.step = 500; precio.value = s.precio;
-        const minutos = el("input"); minutos.type = "number"; minutos.min = 10; minutos.max = 240; minutos.step = 5; minutos.value = s.minutos;
-        const activo = el("input"); activo.type = "checkbox"; activo.checked = s.activo;
-        const lab = el("label", "check"); lab.appendChild(activo); lab.appendChild(document.createTextNode("Visible para los clientes"));
+        const caja = el("details", "srv");
+        if (abiertos[s.id]) caja.open = true;
+        caja.addEventListener("toggle", function () { abiertos[s.id] = caja.open; });
 
-        caja.appendChild(campo("Nombre", nombre));
+        const resumen = el("summary");
+        if (s.foto_url && /^https:\/\//.test(s.foto_url)) {
+          const im = el("img", "srv-foto");
+          im.src = s.foto_url; im.alt = ""; im.loading = "lazy";
+          resumen.appendChild(im);
+        } else {
+          const sf = el("span", "srv-foto");
+          sf.appendChild(icono("foto"));
+          resumen.appendChild(sf);
+        }
+        const txt = el("span", "srv-txt");
+        txt.appendChild(el("strong", "", s.nombre));
+        txt.appendChild(el("span", "", plata(s.precio) + " · " + s.minutos + " min"));
+        resumen.appendChild(txt);
+        resumen.appendChild(el("span", "estado-srv" + (s.activo ? "" : " oculto"), s.activo ? "Visible" : "Oculto"));
+        const chev = el("span", "chev");
+        chev.appendChild(icono("abajo"));
+        resumen.appendChild(chev);
+        caja.appendChild(resumen);
+
+        const cuerpo = el("div", "srv-cuerpo");
+        const nombre = entrada("text", s.nombre, { maxLength: 60 });
+        const precio = entrada("number", s.precio, { min: 0, step: 500, inputMode: "numeric" });
+        const minutos = entrada("number", s.minutos, { min: 10, max: 240, step: 5, inputMode: "numeric" });
+        const vis = interruptor("Visible para los clientes", s.activo);
+        cuerpo.appendChild(campo("Nombre", nombre));
         const fila = el("div", "fila2");
         fila.appendChild(campo("Precio ($)", precio));
         fila.appendChild(campo("Duración (min)", minutos));
-        caja.appendChild(fila);
-        caja.appendChild(lab);
+        cuerpo.appendChild(fila);
+        const filaVis = el("div");
+        filaVis.style.margin = "2px 0 6px";
+        filaVis.appendChild(vis.label);
+        cuerpo.appendChild(filaVis);
 
         const bloque = el("div", "foto-edit");
         if (s.foto_url && /^https:\/\//.test(s.foto_url)) {
@@ -936,28 +1582,31 @@
         }
         const colFoto = el("div", "foto-botones");
         const archivo = el("input"); archivo.type = "file"; archivo.accept = "image/*"; archivo.hidden = true;
-        const subir = el("button", "chico", s.foto_url ? "Cambiar foto" : "Subir foto");
+        const subir = el("button", "btn btn-borde btn-chico", s.foto_url ? "Cambiar foto" : "Subir foto");
         subir.type = "button";
         subir.onclick = function () { archivo.click(); };
         archivo.onchange = function () { if (archivo.files && archivo.files[0]) subirFoto(s, archivo.files[0], subir); };
         colFoto.appendChild(subir);
         if (s.foto_url) {
-          const quitar = el("button", "chico", "Quitar foto");
+          const quitar = el("button", "btn btn-borde btn-chico", "Quitar foto");
           quitar.type = "button";
           quitar.onclick = function () { quitarFoto(s); };
           colFoto.appendChild(quitar);
         }
         bloque.appendChild(colFoto);
         bloque.appendChild(archivo);
-        caja.appendChild(bloque);
+        cuerpo.appendChild(bloque);
 
-        const botones = el("div", "botones");
-        const guardar = el("button", "", "Guardar");
-        guardar.onclick = function () { guardarServicio(s.id, nombre.value, precio.value, minutos.value, activo.checked); };
-        const borrar = el("button", "peligro", "Eliminar");
+        const botones = el("div", "botones2");
+        const guardar = el("button", "btn btn-oro", "Guardar");
+        guardar.type = "button";
+        guardar.onclick = function () { guardarServicio(s.id, nombre.value, precio.value, minutos.value, vis.input.checked, guardar); };
+        const borrar = el("button", "btn btn-peligro", "Eliminar");
+        borrar.type = "button";
         borrar.onclick = function () { eliminarServicio(s); };
         botones.appendChild(guardar); botones.appendChild(borrar);
-        caja.appendChild(botones);
+        cuerpo.appendChild(botones);
+        caja.appendChild(cuerpo);
         cont.appendChild(caja);
       });
     }
@@ -971,9 +1620,10 @@
       return null;
     }
 
-    async function guardarServicio(id, nombre, precio, minutos, activo) {
+    async function guardarServicio(id, nombre, precio, minutos, activo, boton) {
       const error = validarServicio(nombre, precio, minutos);
       if (error) { aviso("error", error); return; }
+      if (boton) cargandoBoton(boton);
       try {
         const r = await api("/rest/v1/servicios?id=eq." + id, {
           method: "PATCH", headers: { "Prefer": "return=minimal" },
@@ -981,12 +1631,15 @@
         });
         if (!r.ok) throw new Error();
         aviso("ok", "Servicio guardado. Ya se ve en la página de clientes.");
+        abiertos[id] = false;
         await cargarConfig();
+        return;
       } catch (e) { aviso("error", "No se pudo guardar el servicio."); }
+      if (boton) liberarBoton(boton);
     }
 
     async function eliminarServicio(s) {
-      if (!confirm("¿Eliminar \"" + s.nombre + "\"? Los turnos ya reservados no se borran. Si solo querés ocultarlo, desmarcá \"Visible\".")) return;
+      if (!await preguntar("¿Eliminar \"" + s.nombre + "\"?", "Los turnos ya reservados no se borran. Si solo querés ocultarlo, apagá \"Visible para los clientes\".", "Sí, eliminar")) return;
       try {
         const r = await api("/rest/v1/servicios?id=eq." + s.id, { method: "DELETE", headers: { "Prefer": "return=minimal" } });
         if (!r.ok) throw new Error();
@@ -1000,6 +1653,8 @@
       const nombre = $("nsNombre").value, precio = $("nsPrecio").value, minutos = $("nsMinutos").value;
       const error = validarServicio(nombre, precio, minutos);
       if (error || precio === "") { aviso("error", error || "Revisá el precio."); return; }
+      const boton = $("nsAgregar");
+      cargandoBoton(boton, "Agregando...");
       try {
         const r = await api("/rest/v1/servicios", {
           method: "POST", headers: { "Prefer": "return=minimal" },
@@ -1007,9 +1662,11 @@
         });
         if (!r.ok) throw new Error();
         $("nsNombre").value = ""; $("nsPrecio").value = ""; $("nsMinutos").value = "30";
+        $("nsCaja").open = false;
         aviso("ok", "Servicio agregado.");
         await cargarConfig();
       } catch (e) { aviso("error", "No se pudo agregar el servicio."); }
+      liberarBoton(boton);
     }
 
     // ---------- Configuración: horarios ----------
@@ -1021,21 +1678,21 @@
       refsHorarios = {};
       ORDEN_DIAS.forEach(function (dia) {
         const h = S.horarios.find(function (x) { return x.dia === dia; });
-        const fr = h ? h.franjas : [];
+        const fr = h && Array.isArray(h.franjas) ? h.franjas : [];
         const caja = el("div", "dia-edit");
 
-        const abierto = el("input"); abierto.type = "checkbox"; abierto.checked = fr.length > 0;
-        const lab = el("label", "check"); lab.appendChild(abierto); lab.appendChild(document.createTextNode("Abierto"));
+        const sw = interruptor("Abierto", fr.length > 0);
+        const abierto = sw.input;
         const cab = el("div", "cab");
         cab.appendChild(el("span", "", nombresDias[dia]));
-        cab.appendChild(lab);
+        cab.appendChild(sw.label);
         caja.appendChild(cab);
 
-        function inputHora(valor) { const i = el("input"); i.type = "time"; i.step = 900; i.value = valor ? valor.slice(0, 5) : ""; return i; }
+        function inputHora(valor) { return entrada("time", valor ? valor.slice(0, 5) : "", { step: 900 }); }
         const d1 = inputHora(fr[0] && fr[0][0]), h1 = inputHora(fr[0] && fr[0][1]);
         const d2 = inputHora(fr[1] && fr[1][0]), h2 = inputHora(fr[1] && fr[1][1]);
 
-        const cuerpo = el("div");
+        const cuerpo = el("div", "cuerpo");
         const f1 = el("div", "fila2"); f1.appendChild(campo("Desde", d1)); f1.appendChild(campo("Hasta", h1));
         cuerpo.appendChild(f1);
         cuerpo.appendChild(el("div", "sub", "Segunda franja (opcional)"));
@@ -1043,7 +1700,7 @@
         cuerpo.appendChild(f2);
         caja.appendChild(cuerpo);
 
-        function mostrar() { cuerpo.hidden = !abierto.checked; }
+        function mostrar() { cuerpo.hidden = !abierto.checked; caja.classList.toggle("cerrado", !abierto.checked); }
         abierto.onchange = function () {
           if (abierto.checked && !d1.value) { d1.value = "10:00"; h1.value = "20:00"; }
           mostrar();
@@ -1072,6 +1729,8 @@
         filas.push({ dia: dia, franjas: franjas });
       });
       if (error) { aviso("error", error); return; }
+      const boton = $("guardarHorarios");
+      cargandoBoton(boton);
       try {
         const r = await api("/rest/v1/horarios", {
           method: "POST", headers: { "Prefer": "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(filas)
@@ -1080,6 +1739,7 @@
         aviso("ok", "Horarios guardados. Ya se ven en la página de clientes.");
         await cargarConfig();
       } catch (e) { aviso("error", "No se pudieron guardar los horarios."); }
+      liberarBoton(boton);
     }
 
     // ---------- Configuración: datos del negocio ----------
@@ -1092,39 +1752,31 @@
       refsAjustes = {};
 
       function texto(clave, etiqueta, ayuda, largo) {
-        const i = el(largo ? "textarea" : "input");
-        if (!largo) i.type = "text";
-        i.value = a[clave] || "";
+        const i = entrada(largo ? "textarea" : "text", a[clave] || "");
         refsAjustes[clave] = i;
-        const d = campo(etiqueta, i);
-        if (ayuda) d.appendChild(el("p", "nota", ayuda));
-        cont.appendChild(d);
+        cont.appendChild(campo(etiqueta, i, ayuda));
       }
       function numero(clave, etiqueta, min, max, ayuda) {
-        const i = el("input"); i.type = "number"; i.min = min; i.max = max; i.value = a[clave];
+        const i = entrada("number", a[clave], { min: min, max: max, inputMode: "numeric" });
         refsAjustes[clave] = i;
-        const d = campo(etiqueta, i);
-        if (ayuda) d.appendChild(el("p", "nota", ayuda));
-        cont.appendChild(d);
+        cont.appendChild(campo(etiqueta, i, ayuda));
       }
 
       texto("nombre", "Nombre del negocio");
       texto("frase", "Frase de la portada", "", true);
       texto("whatsapp", "WhatsApp del negocio", "Con 549 + código de área + número, sin espacios. Ej: 5493411234567");
       texto("instagram", "Instagram (opcional)", "Pegá el link completo o solo el usuario. Ej: barberiaaugusto");
-      texto("direccion", "Dirección (opcional)", "Si la completás, aparece el botón \"Cómo llegar\".");
-      texto("politica", "Mensaje de cancelación", "Aparece debajo del formulario de reservas.", true);
+      texto("direccion", "Dirección (opcional)", "Si la completás, aparecen el mapa y el botón \"Cómo llegar\".");
+      texto("politica", "Mensaje de cancelación", "Aparece debajo del botón de reservar.", true);
 
-      const sel = el("select");
+      const sel = el("select", "input");
       [10, 15, 20, 30, 45, 60].forEach(function (m) {
         const o = el("option", "", m + " minutos"); o.value = m;
         if (m === a.intervalo) o.selected = true;
         sel.appendChild(o);
       });
       refsAjustes.intervalo = sel;
-      const d = campo("Separación entre turnos", sel);
-      d.appendChild(el("p", "nota", "Cada cuánto se ofrece un horario (por ejemplo, 10:00, 10:30, 11:00)."));
-      cont.appendChild(d);
+      cont.appendChild(campo("Separación entre turnos", sel, "Cada cuánto se ofrece un horario (por ejemplo, 10:00, 10:30, 11:00)."));
 
       numero("dias_adelante", "Días hacia adelante que se puede reservar", 1, 60);
       numero("cancelacion_horas", "Horas de anticipación para cancelar", 0, 72, "El cliente puede cancelar solo hasta esas horas antes del turno.");
@@ -1141,6 +1793,8 @@
       v.dias_adelante = Number(v.dias_adelante);
       v.cancelacion_horas = Number(v.cancelacion_horas);
       v.max_turnos_telefono = Number(v.max_turnos_telefono);
+      const boton = $("guardarAjustes");
+      cargandoBoton(boton);
       try {
         const r = await api("/rest/v1/ajustes?id=eq.1", {
           method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify(v)
@@ -1149,12 +1803,52 @@
         aviso("ok", "Datos guardados. Ya se ven en la página de clientes.");
         await cargarConfig();
       } catch (e) { aviso("error", "No se pudieron guardar los datos. Revisá que los números estén dentro de los rangos."); }
+      liberarBoton(boton);
+    }
+
+    // ---------- Tu cuenta: cambiar la contraseña ----------
+    function emailDeSesion() {
+      try {
+        const datos = String(token).split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+        return JSON.parse(decodeURIComponent(escape(atob(datos)))).email || "";
+      } catch (e) { return ""; }
+    }
+
+    async function cambiarClave() {
+      const nueva = $("claveNueva").value, repetida = $("claveNueva2").value;
+      if (nueva.length < 8) { aviso("error", "La contraseña nueva tiene que tener al menos 8 caracteres."); return; }
+      if (nueva !== repetida) { aviso("error", "Las dos contraseñas no coinciden."); return; }
+      const boton = $("cambiarClave");
+      cargandoBoton(boton, "Cambiando...");
+      try {
+        const r = await api("/auth/v1/user", { method: "PUT", body: JSON.stringify({ password: nueva }) });
+        if (r.ok) {
+          $("claveNueva").value = ""; $("claveNueva2").value = "";
+          aviso("ok", "Contraseña cambiada. La próxima vez entrá con la nueva.");
+        } else if (r.status !== 401) {
+          let codigo = "";
+          try { const d = await r.json(); codigo = String(d.error_code || d.error || ""); } catch (e) {}
+          aviso("error",
+            codigo === "same_password" ? "Esa ya es tu contraseña actual. Elegí otra." :
+            codigo === "weak_password" ? "Elegí una contraseña más segura: más larga y con letras y números." :
+            codigo === "reauthentication_needed" ? "Por seguridad, salí y volvé a entrar antes de cambiar la contraseña." :
+            "No se pudo cambiar la contraseña. Probá de nuevo.");
+        }
+      } catch (e) { aviso("error", "No hay conexión. Probá de nuevo."); }
+      liberarBoton(boton);
     }
 
     // ---------- Eventos ----------
-    $("entrar").onclick = entrar;
-    $("clave").addEventListener("keydown", function (e) { if (e.key === "Enter") entrar(); });
-    $("salir").onclick = function () { salir(); };
+    $("formLogin").addEventListener("submit", entrar);
+    $("verClave").onclick = function () {
+      const ver = $("clave").type === "password";
+      $("clave").type = ver ? "text" : "password";
+      $("verClave").textContent = ver ? "Ocultar" : "Ver";
+      $("verClave").setAttribute("aria-label", ver ? "Ocultar contraseña" : "Mostrar contraseña");
+    };
+    $("salir").onclick = async function () {
+      if (await preguntar("¿Cerrar sesión?", "Vas a tener que volver a entrar con tu email y contraseña.", "Sí, salir", false)) salir();
+    };
     document.querySelectorAll(".tab").forEach(function (t) { t.onclick = function () { irA(t.dataset.vista); }; });
 
     $("fecha").onchange = cargar;
@@ -1162,8 +1856,10 @@
     $("sig").onclick = function () { mover("fecha", 1, cargar); };
     $("hoy").onclick = function () { $("fecha").value = fechaISO(new Date()); cargar(); };
     $("actualizar").onclick = function () { cargar(); aviso("ok", "Agenda actualizada."); };
-    $("agregar").onclick = agregarManual;
-    $("bloquear").onclick = bloquearHorario;
+    $("abrirAgregar").onclick = function () { abrirAgregar(); };
+    $("abrirBloquear").onclick = abrirBloquear;
+    $("formAgregar").addEventListener("submit", agregarManual);
+    $("formBloquear").addEventListener("submit", bloquearHorario);
     $("bloquearDia").onclick = bloquearDia;
 
     $("rFecha").onchange = cargarRecord;
@@ -1174,9 +1870,17 @@
     $("guardarHorarios").onclick = guardarHorarios;
     $("guardarAjustes").onclick = guardarAjustes;
     $("guardarPagos").onclick = guardarPagos;
+    $("cambiarClave").onclick = cambiarClave;
+    document.querySelectorAll(".sub-nav a").forEach(function (a) {
+      a.onclick = function (e) {
+        e.preventDefault();
+        const destino = document.querySelector(a.getAttribute("href"));
+        window.scrollTo({ top: destino.getBoundingClientRect().top + window.scrollY - (window.innerWidth >= 900 ? 140 : 80), behavior: "smooth" });
+      };
+    });
 
-    $("firmaNombre").textContent = FIRMA.nombre;
-    $("firmaLink").href = "https://wa.me/" + FIRMA.whatsapp + "?text=" + encodeURIComponent("Hola! Necesito ayuda con el panel");
+    document.querySelectorAll(".firmaNombre").forEach(function (x) { x.textContent = FIRMA.nombre; });
+    document.querySelectorAll(".firmaLink").forEach(function (x) { x.href = "https://wa.me/" + FIRMA.whatsapp + "?text=" + encodeURIComponent("Hola! Necesito ayuda con el panel"); });
 
     // Se actualiza sola cada minuto mientras la pestaña está visible
     setInterval(function () {
