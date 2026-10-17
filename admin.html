@@ -557,7 +557,7 @@
         </div>
       </section>
 
-      <div class="firma">Sistema creado por <strong class="firmaNombre"></strong> · <a class="firmaLink" target="_blank" rel="noopener">Soporte por WhatsApp</a></div>
+      <div class="firma">Sistema creado por <strong class="firmaNombre"></strong> · <a id="pedirSoporte" href="#">Pedir soporte</a></div>
     </main>
   </div>
 
@@ -2243,7 +2243,16 @@
         onAuthStateChange: function (fn) { avisosSesion.push(fn); }
       }
     };
-    FoxSoporte.init(sb, { whatsapp: '5493816432120', accent: '#c9a24b' });
+    FoxSoporte.init(sb, { accent: '#c9a24b' });
+
+    // El formulario se abre desde el enlace "Pedir soporte" del pie, así que se oculta el botón flotante
+    const hostSoporte = document.getElementById("fox-soporte");
+    if (hostSoporte && hostSoporte.shadowRoot) {
+      const sinBoton = document.createElement("style");
+      sinBoton.textContent = ".fab{display:none}";
+      hostSoporte.shadowRoot.appendChild(sinBoton);
+    }
+    $("pedirSoporte").onclick = function (e) { e.preventDefault(); FoxSoporte.open(); };
   </script>
 </body>
 </html>
