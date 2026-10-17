@@ -844,11 +844,13 @@
       document.querySelectorAll(".modal").forEach(function (m) { m.hidden = true; });
       document.body.classList.remove("sin-scroll");
       avisoLogin(mensaje || "");
+      if (typeof avisarSesion === "function") avisarSesion();
     }
 
     async function mostrarPanel() {
       $("login").hidden = true;
       $("panel").hidden = false;
+      if (typeof avisarSesion === "function") avisarSesion();
       $("emailCuenta").textContent = emailDeSesion() || "tu email";
       if (!$("fecha").value) $("fecha").value = fechaISO(new Date());
       if (!$("rFecha").value) { const m = new Date(); m.setDate(m.getDate() + 1); $("rFecha").value = fechaISO(m); }
@@ -2218,6 +2220,30 @@
     }, 60000);
 
     if (token) mostrarPanel();
+  </script>
+
+  <!-- ===== BOTÓN DE SOPORTE (Fox & Co. Digital) ===== -->
+  <script src="soporte-fox.js"></script>
+  <script>
+    // El panel no usa supabase-js: este "sb" le da a FoxSoporte lo mínimo que necesita
+    // usando la misma api() y la misma sesión (token) que el resto del panel.
+    const avisosSesion = [];
+    const sesionActual = () => token ? { user: {} } : null;
+    function avisarSesion() { avisosSesion.forEach(function (fn) { fn(null, sesionActual()); }); }
+    const sb = {
+      rpc: async function (nombre, params) {
+        try {
+          const r = await api("/rest/v1/rpc/" + nombre, { method: "POST", body: JSON.stringify(params || {}) });
+          const datos = await r.json().catch(function () { return null; });
+          return r.ok ? { data: datos, error: null } : { data: null, error: datos || { status: r.status } };
+        } catch (e) { return { data: null, error: e }; }
+      },
+      auth: {
+        getSession: () => Promise.resolve({ data: { session: sesionActual() } }),
+        onAuthStateChange: function (fn) { avisosSesion.push(fn); }
+      }
+    };
+    FoxSoporte.init(sb, { whatsapp: '5493816432120', accent: '#c9a24b' });
   </script>
 </body>
 </html>
