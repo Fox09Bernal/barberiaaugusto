@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#0a0a0a">
+  <link rel="manifest" href="admin.webmanifest">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Panel Augusto">
   <title>Panel | Barbería Augusto</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0a'/%3E%3Cg fill='none' stroke='%23c9a24b' stroke-width='4' stroke-linecap='round'%3E%3Ccircle cx='18' cy='18' r='7'/%3E%3Ccircle cx='18' cy='46' r='7'/%3E%3Cpath d='M52 12 23 41M38 38l14 14M23 23l9 9'/%3E%3C/g%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -133,7 +138,7 @@
 
     /* Pestañas: abajo en el celular, arriba en la compu */
     .tabs {
-      position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(4, 1fr);
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-template-columns: repeat(5, 1fr);
       background: rgba(14, 14, 14, .94); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-top: 1px solid var(--borde);
       padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
     }
@@ -145,7 +150,7 @@
     .tab.activo { color: var(--oro-claro); background: rgba(201, 162, 75, .1); }
     .badge { position: absolute; top: 3px; left: calc(50% + 6px); min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: #e5484d; color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; border: 2px solid #0e0e0e; }
     @media (min-width: 900px) {
-      .tabs { position: sticky; top: 64px; bottom: auto; max-width: 820px; margin: 0 auto; grid-template-columns: repeat(4, auto); justify-content: start; gap: 6px; padding: 12px 16px; background: rgba(10, 10, 10, .85); border-top: 0; border-bottom: 1px solid var(--borde); z-index: 29; }
+      .tabs { position: sticky; top: 64px; bottom: auto; max-width: 820px; margin: 0 auto; grid-template-columns: repeat(5, auto); justify-content: start; gap: 6px; padding: 12px 16px; background: rgba(10, 10, 10, .85); border-top: 0; border-bottom: 1px solid var(--borde); z-index: 29; }
       .tab { flex-direction: row; gap: 8px; padding: 9px 16px; font-size: 14px; border-radius: 999px; }
       .tab svg { width: 18px; height: 18px; }
       .badge { position: static; border: 0; }
@@ -304,6 +309,25 @@
     .firma { text-align: center; color: var(--tenue); font-size: 12px; padding: 22px 16px 8px; }
     .firma strong { color: var(--oro); font-weight: 600; }
     .firma a { color: var(--suave); }
+
+    /* ============ ESTADÍSTICAS ============ */
+    .rango { display: flex; gap: 6px; margin: 0 0 14px; }
+    .rango button { flex: 1; min-height: 40px; border-radius: 999px; border: 1px solid var(--borde-2); background: transparent; color: var(--suave); font: 600 13.5px var(--sans); cursor: pointer; }
+    .rango button.activo { background: rgba(201, 162, 75, .14); border-color: var(--oro); color: var(--oro-claro); }
+    .stats.dos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dato-clave { margin: 0 0 14px; padding: 12px 14px; border-radius: 14px; background: rgba(201, 162, 75, .08); border: 1px solid rgba(201, 162, 75, .28); color: #e6dbc2; font-size: 14px; }
+    .gbarras { display: grid; gap: 9px; }
+    .gbarra { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; align-items: center; gap: 10px; font-size: 13.5px; }
+    .gbarra .b-et { color: var(--suave); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .gbarra .b-pista { height: 12px; border-radius: 999px; background: #1d1d1d; overflow: hidden; }
+    .gbarra .b-relleno { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #ad8536, #e9cd88); }
+    .gbarra.mejor .b-relleno { background: var(--oro-grad); }
+    .gbarra .b-val { font-variant-numeric: tabular-nums; font-weight: 600; text-align: right; white-space: nowrap; }
+    .gbarras.servicios .gbarra { grid-template-columns: minmax(80px, 1.1fr) minmax(0, 1.4fr) auto; }
+    .est-stars { color: var(--oro); letter-spacing: 2px; font-size: 15px; }
+    .est-stars .vacia { opacity: .25; }
+    .op-texto { margin: 6px 0 0; color: var(--texto); font-size: 14.5px; overflow-wrap: anywhere; }
+    .tag.oculta { background: rgba(255, 255, 255, .06); color: var(--suave); }
     .vista { animation: aparecer .25s ease; }
 
     @media (prefers-reduced-motion: reduce) {
@@ -355,6 +379,7 @@
       <button class="tab activo" type="button" data-vista="vAgenda"><span data-icono="calendario"></span>Agenda</button>
       <button class="tab" type="button" data-vista="vRecord"><span data-icono="chat"></span>Recordar<b class="badge" id="badgeRecord" hidden></b></button>
       <button class="tab" type="button" data-vista="vPagos"><span data-icono="tarjeta"></span>Pagos<b class="badge" id="badgePagos" hidden></b></button>
+      <button class="tab" type="button" data-vista="vStats"><span data-icono="grafico"></span>Estadísticas</button>
       <button class="tab" type="button" data-vista="vConfig"><span data-icono="ajustes"></span>Ajustes</button>
     </nav>
 
@@ -430,6 +455,49 @@
           <p class="nota">Turnos de hoy en adelante que ya pagaron la seña.</p>
           <div id="pCobradas" class="agenda"></div>
         </div>
+      </section>
+
+      <!-- ESTADÍSTICAS -->
+      <section id="vStats" class="vista" hidden>
+        <div class="rango" role="group" aria-label="Período">
+          <button type="button" data-dias="7">7 días</button>
+          <button type="button" data-dias="30" class="activo">30 días</button>
+          <button type="button" data-dias="90">90 días</button>
+        </div>
+        <div class="stats dos">
+          <div class="stat"><small>Turnos hechos</small><strong class="oro" id="sHechos">—</strong><span id="sHechosSub">&nbsp;</span></div>
+          <div class="stat"><small>Ingresos estimados</small><strong class="oro" id="sIngresos">—</strong><span id="sIngresosSub">&nbsp;</span></div>
+          <div class="stat"><small>Clientes</small><strong id="sClientes">—</strong><span id="sClientesSub">&nbsp;</span></div>
+          <div class="stat"><small>Cancelaciones</small><strong id="sCancel">—</strong><span id="sCancelSub">&nbsp;</span></div>
+        </div>
+        <p class="dato-clave" id="sClave" hidden></p>
+        <div class="tarjeta">
+          <div class="titulo-lista"><h2>Ingresos por semana</h2><span class="total" id="sSemTotal"></span></div>
+          <div id="sSemanas" class="gbarras"></div>
+        </div>
+        <div class="tarjeta">
+          <h2>Servicios más pedidos</h2>
+          <div id="sServicios" class="gbarras servicios"></div>
+        </div>
+        <div class="tarjeta">
+          <h2>Días más fuertes</h2>
+          <div id="sDias" class="gbarras"></div>
+        </div>
+        <div class="tarjeta">
+          <h2>Horas pico</h2>
+          <div id="sHoras" class="gbarras"></div>
+        </div>
+        <div class="tarjeta">
+          <div class="titulo-lista"><h2>Opiniones</h2><span class="total" id="oResumen"></span></div>
+          <p class="nota">Las opiniones de clientes se publican solas en la página. Si alguna no corresponde, ocultala y deja de verse.</p>
+          <div id="oLista" class="agenda"></div>
+        </div>
+        <div class="tarjeta">
+          <h2>Pedir opinión</h2>
+          <p class="nota">Clientes de los últimos días que ya vinieron y todavía no dejaron su opinión. Con un toque les mandás el link por WhatsApp.</p>
+          <div id="oPedir" class="agenda"></div>
+        </div>
+        <p class="nota centro">Los ingresos son una estimación: suman el precio actual de cada servicio por cada turno realizado. No incluyen propinas ni descuentos.</p>
       </section>
 
       <!-- AJUSTES -->
@@ -579,6 +647,7 @@
 
     // ---------- Íconos ----------
     const ICONOS = {
+      grafico: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
       calendario: '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M16 3v4M8 3v4M3 10h18"/>',
       chat: '<path d="M20.5 11.6a8.4 8.4 0 0 1-12.3 7.5L3.5 20.5l1.4-4.5a8.4 8.4 0 1 1 15.6-4.4z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/>',
       tarjeta: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6.5 15h4"/>',
@@ -789,7 +858,7 @@
 
     // ---------- Pestañas ----------
     function irA(vista) {
-      ["vAgenda", "vRecord", "vPagos", "vConfig"].forEach(function (v) { $(v).hidden = v !== vista; });
+      ["vAgenda", "vRecord", "vPagos", "vStats", "vConfig"].forEach(function (v) { $(v).hidden = v !== vista; });
       document.querySelectorAll(".tab").forEach(function (t) {
         const activa = t.dataset.vista === vista;
         t.classList.toggle("activo", activa);
@@ -798,8 +867,239 @@
       window.scrollTo(0, 0);
       if (vista === "vRecord") cargarRecord();
       if (vista === "vPagos") cargarPagos();
+      if (vista === "vStats") cargarStats();
       if (vista === "vAgenda") cargar();
     }
+
+
+    // ---------- Estadísticas ----------
+    let ST = null, statsDias = 30;
+
+    async function traerTodo(ruta) {
+      const filas = [];
+      for (let desde = 0; desde < 10000; desde += 1000) {
+        const r = await api(ruta + "&limit=1000&offset=" + desde);
+        if (!r.ok) throw new Error("Error " + r.status);
+        const parte = await r.json();
+        filas.push.apply(filas, parte);
+        if (parte.length < 1000) break;
+      }
+      return filas;
+    }
+
+    async function cargarStats() {
+      if (!token) return;
+      const d = new Date(); d.setDate(d.getDate() - 89);
+      try {
+        const res = await Promise.all([
+          traerTodo("/rest/v1/turnos?fecha=gte." + fechaISO(d) + "&servicio=neq.BLOQUEO&order=fecha.asc,hora.asc&select=id,fecha,hora,servicio,nombre,telefono,estado,token"),
+          traerTodo("/rest/v1/servicios?select=nombre,precio&order=id.asc"),
+          traerTodo("/rest/v1/opiniones?order=creado.desc&select=id,turno_id,autor,estrellas,texto,visible,creado")
+        ]);
+        ST = { turnos: res[0], servicios: res[1], opiniones: res[2] };
+        dibujarStats();
+      } catch (e) {
+        $("sClave").hidden = false;
+        $("sClave").textContent = "No se pudieron cargar las estadísticas. Tocá otra pestaña y volvé a entrar.";
+      }
+    }
+
+    function barraEl(etiqueta, valor, max, texto, top) {
+      const f = el("div", "gbarra" + (top ? " mejor" : ""));
+      f.appendChild(el("span", "b-et", etiqueta));
+      const pista = el("span", "b-pista");
+      const rell = el("span", "b-relleno");
+      rell.style.width = (max > 0 ? Math.max(valor > 0 ? 3 : 0, Math.round(valor / max * 100)) : 0) + "%";
+      pista.appendChild(rell);
+      f.appendChild(pista);
+      f.appendChild(el("span", "b-val", texto));
+      return f;
+    }
+
+    function dibujarBarras(cont, datos, vacioTxt) {
+      cont.replaceChildren();
+      const max = Math.max.apply(null, datos.map(function (x) { return x.valor; }).concat([0]));
+      if (!max) { cont.appendChild(el("div", "vacio", vacioTxt)); return; }
+      datos.forEach(function (x) { cont.appendChild(barraEl(x.et, x.valor, max, x.texto, x.valor === max)); });
+    }
+
+    function estrellasTxt(n) {
+      const c = el("span", "est-stars");
+      c.setAttribute("role", "img"); c.setAttribute("aria-label", n + " de 5 estrellas");
+      for (let i = 1; i <= 5; i++) { const e = el("span", i > n ? "vacia" : "", "★"); c.appendChild(e); }
+      return c;
+    }
+
+    function dibujarStats() {
+      if (!ST) return;
+      const ahora = new Date();
+      const hoy = fechaISO(ahora);
+      const dd = new Date(); dd.setDate(dd.getDate() - (statsDias - 1));
+      const desde = fechaISO(dd);
+      const precios = {};
+      ST.servicios.forEach(function (x) { precios[String(x.nombre).toLowerCase()] = Number(x.precio) || 0; });
+      const precio = function (t) { return precios[String(t.servicio).toLowerCase()] || 0; };
+      const paso = function (t) { return new Date(t.fecha + "T" + t.hora.slice(0, 5) + ":00") < ahora; };
+      const enRango = function (t) { return t.fecha >= desde && t.fecha <= hoy; };
+
+      const hechos = ST.turnos.filter(function (t) { return t.estado === "activo" && paso(t) && enRango(t); });
+      const cancel = ST.turnos.filter(function (t) { return t.estado === "cancelado" && enRango(t); });
+      const futuros = ST.turnos.filter(function (t) { return t.estado === "activo" && !paso(t); });
+      const ingresos = hechos.reduce(function (a, t) { return a + precio(t); }, 0);
+
+      // Clientes: por teléfono; "volvieron" = tuvieron 2 turnos o más en los últimos 90 días
+      const porTel = {};
+      ST.turnos.forEach(function (t) { if (t.estado === "activo" && paso(t) && t.telefono) porTel[t.telefono] = (porTel[t.telefono] || 0) + 1; });
+      const telsRango = {};
+      hechos.forEach(function (t) { if (t.telefono) telsRango[t.telefono] = true; });
+      const clientes = Object.keys(telsRango);
+      const volvieron = clientes.filter(function (k) { return porTel[k] >= 2; }).length;
+
+      $("sHechos").textContent = String(hechos.length);
+      $("sHechosSub").textContent = futuros.length + (futuros.length === 1 ? " turno por delante" : " turnos por delante");
+      $("sIngresos").textContent = plata(ingresos);
+      $("sIngresosSub").textContent = hechos.length ? "≈ " + plata(Math.round(ingresos / hechos.length)) + " por turno" : "\u00a0";
+      $("sClientes").textContent = String(clientes.length);
+      $("sClientesSub").textContent = clientes.length ? Math.round(volvieron / clientes.length * 100) + "% volvió" : "\u00a0";
+      const totalCit = hechos.length + cancel.length;
+      $("sCancel").textContent = String(cancel.length);
+      $("sCancelSub").textContent = totalCit ? Math.round(cancel.length / totalCit * 100) + "% de los turnos" : "\u00a0";
+
+      // Ingresos por semana (bloques de 7 días hacia atrás desde hoy)
+      const nSem = Math.min(13, Math.ceil(statsDias / 7));
+      const semanas = [];
+      for (let i = nSem - 1; i >= 0; i--) {
+        const fin = new Date(); fin.setDate(fin.getDate() - i * 7);
+        const ini = new Date(fin); ini.setDate(ini.getDate() - 6);
+        const a = fechaISO(ini), b = fechaISO(fin);
+        const lista = ST.turnos.filter(function (t) { return t.estado === "activo" && paso(t) && t.fecha >= a && t.fecha <= b; });
+        const suma = lista.reduce(function (x, t) { return x + precio(t); }, 0);
+        semanas.push({ et: ini.getDate() + "/" + (ini.getMonth() + 1), valor: suma, texto: plata(suma) });
+      }
+      dibujarBarras($("sSemanas"), semanas, "Todavía no hay turnos realizados en este período.");
+      $("sSemTotal").textContent = "";
+
+      // Servicios
+      const cuenta = {};
+      hechos.forEach(function (t) { const k = t.servicio; cuenta[k] = cuenta[k] || { n: 0, plata: 0 }; cuenta[k].n++; cuenta[k].plata += precio(t); });
+      const serv = Object.keys(cuenta).map(function (k) { return { et: k, valor: cuenta[k].n, texto: cuenta[k].n + " · " + plata(cuenta[k].plata) }; })
+        .sort(function (a, b) { return b.valor - a.valor; }).slice(0, 6);
+      dibujarBarras($("sServicios"), serv, "Sin datos todavía.");
+
+      // Días de la semana
+      const porDia = [0, 0, 0, 0, 0, 0, 0];
+      hechos.forEach(function (t) { porDia[aFecha(t.fecha).getDay()]++; });
+      const dias = ORDEN_DIAS.map(function (n) { return { et: nombresCortos[n], valor: porDia[n], texto: String(porDia[n]) }; });
+      dibujarBarras($("sDias"), dias, "Sin datos todavía.");
+
+      // Horas pico
+      const porHora = {};
+      hechos.forEach(function (t) { const h = Number(t.hora.slice(0, 2)); porHora[h] = (porHora[h] || 0) + 1; });
+      const horas = Object.keys(porHora).map(Number).sort(function (a, b) { return a - b; })
+        .map(function (h) { return { et: pad(h) + ":00", valor: porHora[h], texto: String(porHora[h]) }; });
+      dibujarBarras($("sHoras"), horas, "Sin datos todavía.");
+
+      // Dato clave
+      const clave = $("sClave");
+      if (hechos.length >= 5) {
+        const mejorDia = ORDEN_DIAS.slice().sort(function (a, b) { return porDia[b] - porDia[a]; })[0];
+        const peorDia = ORDEN_DIAS.filter(function (n) { return n !== 0 || porDia[0] > 0; }).sort(function (a, b) { return porDia[a] - porDia[b]; })[0];
+        const mejorHora = horas.slice().sort(function (a, b) { return b.valor - a.valor; })[0];
+        clave.textContent = "Tu día más fuerte es el " + nombresDias[mejorDia].toLowerCase() + " y la hora pico, las " + mejorHora.et +
+          ". El día más tranquilo es el " + nombresDias[peorDia].toLowerCase() + ": buen momento para una promo.";
+        clave.hidden = false;
+      } else clave.hidden = true;
+
+      dibujarOpiniones();
+      dibujarPedirOpinion(paso);
+    }
+
+    function dibujarOpiniones() {
+      const lista = $("oLista");
+      lista.replaceChildren();
+      const vis = ST.opiniones.filter(function (o) { return o.visible; });
+      $("oResumen").textContent = vis.length
+        ? (vis.reduce(function (a, o) { return a + o.estrellas; }, 0) / vis.length).toFixed(1).replace(".", ",") + " ★ · " + vis.length + (vis.length === 1 ? " opinión" : " opiniones")
+        : "";
+      if (!ST.opiniones.length) { lista.appendChild(el("div", "vacio", "Todavía no hay opiniones. Pedísela a tus clientes desde la sección de abajo.")); return; }
+      ST.opiniones.slice(0, 20).forEach(function (o) {
+        const fila = el("div", "item");
+        const h = el("div", "item-hora");
+        const d = new Date(o.creado);
+        h.appendChild(el("strong", "", d.getDate() + "/" + (d.getMonth() + 1)));
+        fila.appendChild(h);
+        const caja = el("div", "item-caja");
+        const info = el("div");
+        const cab = el("div", "item-nombre", o.autor + " ");
+        cab.appendChild(estrellasTxt(o.estrellas));
+        info.appendChild(cab);
+        info.appendChild(el("p", "op-texto", o.texto));
+        if (!o.visible) info.appendChild(el("span", "tag oculta", "Oculta en la página"));
+        caja.appendChild(info);
+        const acc = el("div", "item-acc");
+        const b = el("button", "btn btn-borde", o.visible ? "Ocultar" : "Volver a mostrar");
+        b.type = "button";
+        b.onclick = async function () {
+          b.disabled = true;
+          try {
+            const r = await api("/rest/v1/opiniones?id=eq." + o.id, { method: "PATCH", headers: { "Prefer": "return=minimal" }, body: JSON.stringify({ visible: !o.visible }) });
+            if (!r.ok) throw new Error();
+            o.visible = !o.visible;
+            aviso("ok", o.visible ? "La opinión vuelve a mostrarse." : "Opinión oculta.");
+            dibujarOpiniones();
+          } catch (e) { b.disabled = false; aviso("error", "No se pudo cambiar. Probá de nuevo."); }
+        };
+        acc.appendChild(b);
+        caja.appendChild(acc);
+        fila.appendChild(caja);
+        lista.appendChild(fila);
+      });
+    }
+
+    function dibujarPedirOpinion(paso) {
+      const cont = $("oPedir");
+      cont.replaceChildren();
+      const ya = {};
+      ST.opiniones.forEach(function (o) { ya[o.turno_id] = true; });
+      const d = new Date(); d.setDate(d.getDate() - 3);
+      const desde = fechaISO(d);
+      const base = new URL("index.html", location.href).href;
+      const lista = ST.turnos.filter(function (t) {
+        return t.estado === "activo" && t.telefono && t.token && t.fecha >= desde && paso(t) && !ya[t.id];
+      }).reverse();
+      if (!lista.length) { cont.appendChild(el("div", "vacio", "No hay clientes pendientes de opinar.")); return; }
+      lista.slice(0, 15).forEach(function (t) {
+        const nombre = limpiarNombre(t.nombre);
+        const fila = el("div", "item");
+        const h = el("div", "item-hora");
+        const f = aFecha(t.fecha);
+        h.appendChild(el("strong", "", f.getDate() + "/" + (f.getMonth() + 1)));
+        h.appendChild(el("small", "", t.hora.slice(0, 5)));
+        fila.appendChild(h);
+        const caja = el("div", "item-caja");
+        const info = el("div");
+        info.appendChild(el("div", "item-nombre", nombre));
+        info.appendChild(el("div", "item-det", t.servicio));
+        caja.appendChild(info);
+        const acc = el("div", "item-acc");
+        acc.appendChild(enlaceWA("Pedir opinión", t.telefono,
+          "Hola " + nombre + "! Gracias por venir a " + nombreNegocio() + ". ¿Nos dejás tu opinión? Te lleva 20 segundos: " + base + "?turno=" + t.token));
+        caja.appendChild(acc);
+        fila.appendChild(caja);
+        cont.appendChild(fila);
+      });
+    }
+
+    document.querySelectorAll(".rango button").forEach(function (b) {
+      b.onclick = function () {
+        statsDias = Number(b.dataset.dias);
+        document.querySelectorAll(".rango button").forEach(function (x) { x.classList.toggle("activo", x === b); });
+        dibujarStats();
+      };
+    });
+
+    // ---------- Instalar el panel como app ----------
+    if ("serviceWorker" in navigator) window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
 
     // ---------- Utilidades ----------
     function waNumero(t) {

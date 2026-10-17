@@ -6,6 +6,12 @@
   <meta name="theme-color" content="#0a0a0a">
   <title>Barbería Augusto | Reservá tu turno online</title>
   <meta name="description" content="Reservá tu turno en Barbería Augusto, Tafí Viejo: elegí el servicio, el día y el horario en segundos.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Barbería Augusto">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="canonical" href="https://barberiaaugusto.github.io/">
 
   <!-- Vista previa cuando se comparte el link (WhatsApp, Instagram, Facebook).
@@ -422,6 +428,26 @@
     .opinion p { margin: 30px 0 18px; font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 18.5px; line-height: 1.55; }
     .opinion cite { font-style: normal; color: var(--oro); font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase; font-weight: 600; }
 
+
+    /* ============ ESTRELLAS Y FORMULARIO DE OPINIÓN ============ */
+    .estrellas { display: inline-flex; gap: 3px; color: var(--oro); vertical-align: middle; }
+    .estrellas svg { width: 16px; height: 16px; }
+    .estrellas .vacia { opacity: .25; }
+    .opiniones-resumen { display: flex; justify-content: center; align-items: center; gap: 10px; margin: -18px 0 28px; color: var(--suave); font-size: 15px; }
+    .opiniones-resumen strong { font-family: var(--serif); font-size: 26px; color: var(--oro-claro); font-weight: 600; }
+    .opinion .estrellas { margin-top: 30px; }
+    .opinion .estrellas + p { margin-top: 10px; }
+    .form-opinion { margin-top: 18px; padding-top: 18px; border-top: 1px dashed var(--borde-2); }
+    .form-opinion h4 { margin: 0 0 4px; font: 600 17px var(--sans); }
+    .form-opinion .aviso { margin: 0 0 12px; }
+    .elegir-estrellas { display: flex; gap: 6px; margin: 0 0 12px; }
+    .elegir-estrellas button { background: none; border: 0; padding: 4px; cursor: pointer; color: #5c5850; transition: color .15s, transform .15s; }
+    .elegir-estrellas button svg { width: 34px; height: 34px; display: block; }
+    .elegir-estrellas button.on { color: var(--oro); }
+    .elegir-estrellas button:active { transform: scale(.9); }
+    .form-opinion textarea.input { height: auto; min-height: 96px; padding: 12px 16px; resize: vertical; line-height: 1.5; }
+    .form-opinion .btn { margin-top: 12px; }
+
     /* ============ HORARIOS Y CONTACTO ============ */
     .contacto-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; align-items: start; }
     @media (min-width: 900px) { .contacto-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; } }
@@ -672,6 +698,7 @@
           <h2>Opiniones</h2>
           <div class="adorno"><span></span></div>
         </header>
+        <div id="opinionesResumen" class="opiniones-resumen" hidden></div>
         <div id="opiniones" class="opiniones"></div>
       </div>
     </section>
@@ -710,6 +737,7 @@
         <a href="#servicios">Servicios</a>
         <a href="#reservas">Reservar turno</a>
         <a href="#contacto">Horarios y contacto</a>
+        <a href="#" id="instalarApp" hidden>Instalar app</a>
       </div>
       <div class="pie-copy">© <span id="anio"></span> <span id="pieNombre2"></span>. Todos los derechos reservados.</div>
       <div class="firma">
@@ -792,6 +820,7 @@
 
     // ---------- Íconos (dibujos simples, sin marcas) ----------
     const ICONOS = {
+      estrella: '<path fill="currentColor" stroke="none" d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.6l1.2-6.5L2.5 9.5l6.6-.9z"/>',
       reloj: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
       calendario: '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M16 3v4M8 3v4M3 10h18"/>',
       ubicacion: '<path d="M12 21s-7-6.2-7-11.2a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.6"/>',
@@ -1049,18 +1078,97 @@
       });
     }
 
-    function renderOpiniones() {
-      if (!EXTRA.opiniones.length) return;
+    function estrellasEl(n) {
+      const c = el("span", "estrellas");
+      c.setAttribute("role", "img");
+      c.setAttribute("aria-label", n + " de 5 estrellas");
+      for (let i = 1; i <= 5; i++) {
+        const e = icono("estrella");
+        if (i > n) e.classList.add("vacia");
+        c.appendChild(e);
+      }
+      return c;
+    }
+
+    async function renderOpiniones() {
+      let lista = EXTRA.opiniones.map(function (o) { return { autor: o.autor, texto: o.texto, estrellas: 0 }; });
+      let resumen = null;
+      try {
+        const r = await rpc("opiniones_publicas", {});
+        if (r && r.items && r.items.length) { lista = r.items; resumen = r; }
+      } catch (e) { /* si falla, queda lo que haya en el código */ }
+      if (!lista.length) return;
       const cont = $("opiniones");
       cont.replaceChildren();
-      EXTRA.opiniones.forEach(function (o) {
+      lista.forEach(function (o) {
         const caja = el("figure", "tarjeta opinion revelar");
+        if (o.estrellas) caja.appendChild(estrellasEl(o.estrellas));
         caja.appendChild(el("p", "", o.texto));
         caja.appendChild(el("cite", "", o.autor));
         cont.appendChild(caja);
         observar(caja);
       });
+      if (resumen && resumen.total) {
+        const rs = $("opinionesResumen");
+        rs.replaceChildren(el("strong", "", String(resumen.promedio).replace(".", ",")), estrellasEl(Math.round(resumen.promedio)),
+          el("span", "", "· " + resumen.total + (resumen.total === 1 ? " opinión" : " opiniones")));
+        rs.hidden = false;
+      }
       $("seccionOpiniones").hidden = false;
+    }
+
+    // Formulario para que el cliente deje su opinión desde su turno
+    function formularioOpinion(token) {
+      const f = el("div", "form-opinion");
+      f.appendChild(el("h4", "", "¿Cómo te fue?"));
+      f.appendChild(el("p", "aviso", "Tu opinión ayuda a otros clientes. Se publica con tu nombre de pila."));
+      let nota = 0;
+      const fila = el("div", "elegir-estrellas");
+      fila.setAttribute("role", "radiogroup");
+      fila.setAttribute("aria-label", "Puntaje");
+      const botones = [];
+      for (let i = 1; i <= 5; i++) {
+        const b = el("button");
+        b.type = "button";
+        b.setAttribute("role", "radio");
+        b.setAttribute("aria-checked", "false");
+        b.setAttribute("aria-label", i + (i === 1 ? " estrella" : " estrellas"));
+        b.appendChild(icono("estrella"));
+        b.onclick = function () {
+          nota = i;
+          botones.forEach(function (x, k) { x.classList.toggle("on", k < i); x.setAttribute("aria-checked", String(k === i - 1)); });
+        };
+        botones.push(b);
+        fila.appendChild(b);
+      }
+      f.appendChild(fila);
+      const txt = el("textarea", "input");
+      txt.maxLength = 400;
+      txt.placeholder = "Contanos cómo fue tu experiencia";
+      txt.setAttribute("aria-label", "Tu opinión");
+      f.appendChild(txt);
+      const enviar = el("button", "btn btn-oro", "Publicar opinión");
+      enviar.type = "button";
+      enviar.onclick = async function () {
+        if (!nota) { aviso("Elegí un puntaje de 1 a 5 estrellas."); return; }
+        if (txt.value.trim().length < 5) { aviso("Escribí al menos unas palabras."); return; }
+        enviar.disabled = true;
+        try {
+          const r = await rpc("dejar_opinion", { p_token: token, p_estrellas: nota, p_texto: txt.value });
+          if (r.ok) {
+            f.replaceChildren(el("h4", "", "¡Gracias por tu opinión!"), el("p", "aviso", "Ya está publicada en la página."));
+            renderOpiniones();
+          } else {
+            enviar.disabled = false;
+            aviso(r.error === "ya_opino" ? "Ya dejaste tu opinión de este turno." : "No pudimos publicar tu opinión. Probá de nuevo.");
+          }
+        } catch (e) {
+          enviar.disabled = false;
+          aviso("No hay conexión. Probá de nuevo.");
+        }
+      };
+      f.appendChild(enviar);
+      return f;
     }
 
     // ---------- Reserva: pasos ----------
@@ -1772,7 +1880,8 @@
       } else if (t.estado !== "activo") {
         caja.appendChild(el("p", "mt-msg", "Este turno está cancelado."));
       } else if (paso) {
-        caja.appendChild(el("p", "mt-msg", "Este turno ya pasó."));
+        caja.appendChild(el("p", "mt-msg", t.ya_opino ? "Gracias por tu opinión. ¡Te esperamos de nuevo!" : "Este turno ya pasó."));
+        if (t.puede_opinar) caja.appendChild(formularioOpinion(token));
       } else {
         if (t.pago_estado === "pagado") caja.appendChild(el("p", "mt-msg", "✓ Seña pagada (" + plata(t.pago_monto) + "). Tu turno está confirmado."));
         else if (t.pago_metodo === "efectivo") caja.appendChild(el("p", "mt-msg", "Pagás en efectivo en el local. No hace falta pagar nada online."));
@@ -1894,6 +2003,29 @@
       if (token && uuid.test(token)) cargarMiTurno(token, !!desdeLink);
     }
     iniciar();
+      // ---------- Instalar como app (celular o computadora) ----------
+    (function () {
+      if ("serviceWorker" in navigator) window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+      const enlace = $("instalarApp");
+      if (!enlace) return;
+      const instalada = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone;
+      if (instalada) return;
+      const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+      let evento = null;
+      window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); evento = e; enlace.hidden = false; });
+      window.addEventListener("appinstalled", function () { enlace.hidden = true; evento = null; });
+      if (esIOS) enlace.hidden = false;
+      enlace.onclick = async function (e) {
+        e.preventDefault();
+        if (evento) {
+          evento.prompt();
+          try { await evento.userChoice; } catch (err) { /* sin respuesta */ }
+          evento = null; enlace.hidden = true;
+        } else if (esIOS) {
+          aviso('En el iPhone: tocá el botón Compartir y elegí "Agregar a inicio".');
+        }
+      };
+    })();
   </script>
 </body>
 </html>
